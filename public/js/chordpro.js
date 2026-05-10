@@ -10,18 +10,18 @@ async function init() {
   for (const f of files) {
     const opt = document.createElement('option')
     opt.value = f
-    opt.textContent = f.replace(/\.(cho|chordpro)$/, '')
+    opt.textContent = f.replace(/\.(cho|chordpro|txt)$/, '')
     fileSelect.appendChild(opt)
   }
 
   async function loadSheet() {
     const file = fileSelect.value
-    if (!file) { output.textContent = ''; return }
+    if (!file) { output.innerHTML = ''; return }
     const key = keySelect.value
-    const params = new URLSearchParams({ format: 'text' })
+    const params = new URLSearchParams({ format: 'html' })
     if (key) params.set('key', key)
     const r = await fetch(`/api/chordpro/${encodeURIComponent(file)}?${params}`)
-    output.textContent = await r.text()
+    output.innerHTML = await r.text()
   }
 
   fileSelect.addEventListener('change', loadSheet)

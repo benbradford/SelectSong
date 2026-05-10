@@ -4,7 +4,10 @@
       "Bash(git init *)",
       "Bash(npm install *)",
       "Bash(npx tsx *)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(brew install *)",
+      "Bash(pdftoppm -png -r 150 -f 1 -l 1 /Users/bebradfo/code/selectsong/example.pdf /tmp/example-page)",
+      "Bash(curl -s http://localhost:3000/css/chordpro.css)"
     ]
   }
 }

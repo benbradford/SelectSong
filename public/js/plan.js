@@ -173,32 +173,50 @@ async function handleKeyChange(e) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ songs }),
   })
+
+  // Update the chords button data-key and refresh viewer if open
+  const card = e.target.closest('.plan-song-card')
+  const chordsBtn = card.querySelector('.btn-chords')
+  if (chordsBtn) {
+    chordsBtn.dataset.key = e.target.value
+    // If chord viewer is open for this song, refresh it
+    const viewer = document.getElementById('chord-viewer')
+    if (!viewer.classList.contains('hidden') && viewer.dataset.currentFile === chordsBtn.dataset.file) {
+      chordsBtn.click()
+    }
+  }
 }
 
 async function handleViewChords(e) {
   const file = e.currentTarget.dataset.file
-  const key = e.currentTarget.dataset.key
-  const params = new URLSearchParams({ format: 'text' })
+  const card = e.currentTarget.closest('.plan-song-card')
+  const keySelect = card.querySelector('.key-select')
+  const key = keySelect?.value || e.currentTarget.dataset.key
+  const params = new URLSearchParams({ format: 'html' })
   if (key) params.set('key', key)
 
   const res = await fetch(`/api/chordpro/${encodeURIComponent(file)}?${params}`)
-  const text = await res.text()
+  const html = await res.text()
 
+  const viewer = document.getElementById('chord-viewer')
+  viewer.dataset.currentFile = file
   document.getElementById('chord-viewer-title').textContent = file.replace(/\.(cho|chordpro|txt)$/, '')
-  document.getElementById('chord-viewer-content').textContent = text
-  document.getElementById('chord-viewer').classList.remove('hidden')
+  document.getElementById('chord-viewer-content').innerHTML = html
+  viewer.classList.remove('hidden')
 }
 
 document.getElementById('chord-viewer-close').addEventListener('click', () => {
   document.getElementById('chord-viewer').classList.add('hidden')
 })
 
-document.getElementById('chord-viewer-print').addEventListener('click', () => {
-  const content = document.getElementById('chord-viewer-content').textContent
+document.getElementById('chord-viewer-print').addEventListener('click', async () => {
+  const content = document.getElementById('chord-viewer-content').innerHTML
+  const cssRes = await fetch('/css/chordpro.css')
+  const css = await cssRes.text()
   const win = window.open('', '_blank')
-  win.document.write(`<pre style="font-family: Courier New, monospace; font-size: 11pt; line-height: 1.6;">${content}</pre>`)
+  win.document.write(`<html><head><style>${css}</style></head><body>${content}</body></html>`)
   win.document.close()
-  win.print()
+  setTimeout(() => win.print(), 100)
 })
 
 document.getElementById('print-summary-btn').addEventListener('click', () => {

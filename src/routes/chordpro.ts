@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { readFileSync, existsSync, readdirSync } from 'fs'
 import { resolve } from 'path'
 import { parseChordPro, transposeSong, semitonesFromTo, renderToText } from '../chordpro/parser.js'
+import { renderToHtml } from '../chordpro/html-renderer.js'
 
 export const chordproRouter = Router()
 
@@ -31,6 +32,8 @@ chordproRouter.get('/:filename', (req, res) => {
   const format = req.query.format as string | undefined
   if (format === 'text') {
     res.type('text/plain').send(renderToText(song))
+  } else if (format === 'html') {
+    res.type('text/html').send(renderToHtml(song))
   } else {
     res.json(song)
   }
