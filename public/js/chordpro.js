@@ -1,0 +1,32 @@
+async function init() {
+  const fileSelect = document.getElementById('file-select')
+  const keySelect = document.getElementById('key-select')
+  const output = document.getElementById('chord-output')
+  const printBtn = document.getElementById('print-btn')
+
+  const res = await fetch('/api/chordpro')
+  const files = await res.json()
+
+  for (const f of files) {
+    const opt = document.createElement('option')
+    opt.value = f
+    opt.textContent = f.replace(/\.(cho|chordpro)$/, '')
+    fileSelect.appendChild(opt)
+  }
+
+  async function loadSheet() {
+    const file = fileSelect.value
+    if (!file) { output.textContent = ''; return }
+    const key = keySelect.value
+    const params = new URLSearchParams({ format: 'text' })
+    if (key) params.set('key', key)
+    const r = await fetch(`/api/chordpro/${encodeURIComponent(file)}?${params}`)
+    output.textContent = await r.text()
+  }
+
+  fileSelect.addEventListener('change', loadSheet)
+  keySelect.addEventListener('change', loadSheet)
+  printBtn.addEventListener('click', () => window.print())
+}
+
+init()

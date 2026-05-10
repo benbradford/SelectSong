@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SelectSong</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>SelectSong</h1>
+    <nav>
+      <a href="/" class="active">Songs</a>
+      <a href="/services.html">Recent Services</a>
+      <a href="/chordpro.html">Chord Sheets</a>
+    </nav>
+  </header>
+  <main>
+    <section id="songs-list">
+      <h2>Song Catalogue</h2>
+      <input type="text" id="search" placeholder="Filter songs...">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Author</th>
+            <th>Hymn</th>
+            <th>Last Played</th>
+            <th>Play Count</th>
+          </tr>
+        </thead>
+        <tbody id="songs-body"></tbody>
+      </table>
+    </section>
+  </main>
+  <script src="/js/songs.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chord Sheets - SelectSong</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>SelectSong</h1>
+    <nav>
+      <a href="/">Songs</a>
+      <a href="/services.html">Recent Services</a>
+      <a href="/chordpro.html" class="active">Chord Sheets</a>
+    </nav>
+  </header>
+  <main>
+    <section>
+      <h2>Chord Sheets</h2>
+      <div id="controls">
+        <select id="file-select"><option value="">Select a song...</option></select>
+        <label>Transpose to:
+          <select id="key-select">
+            <option value="">Original</option>
+            <option>C</option><option>C#</option><option>D</option>
+            <option>D#</option><option>E</option><option>F</option>
+            <option>F#</option><option>G</option><option>G#</option>
+            <option>A</option><option>A#</option><option>B</option>
+          </select>
+        </label>
+        <button id="print-btn" class="btn">Print</button>
+      </div>
+      <pre id="chord-output" class="chord-sheet"></pre>
+    </section>
+  </main>
+  <script src="/js/chordpro.js"></script>
+</body>
+</html>
