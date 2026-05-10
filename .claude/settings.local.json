@@ -28,7 +28,19 @@
       "Bash(pdftoppm *)",
       "Bash(ttyd --help)",
       "Bash(tmux kill-session *)",
-      "Bash(tmux has-session *)"
+      "Bash(tmux has-session *)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:developer.churchsuite.com)",
+      "WebFetch(domain:support.churchsuite.com)",
+      "WebFetch(domain:churchsuite.com)",
+      "WebFetch(domain:help.churchsuite.com)",
+      "WebFetch(domain:stjohnsfolkestone.churchsuite.com)",
+      "WebFetch(domain:web.archive.org)",
+      "WebFetch(domain:cachedview.nl)",
+      "WebFetch(domain:www.reddit.com)",
+      "WebFetch(domain:stackoverflow.com)",
+      "Bash(gh search *)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

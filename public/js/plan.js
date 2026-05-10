@@ -292,11 +292,45 @@ document.getElementById('edit-source-btn').addEventListener('click', async () =>
   document.getElementById('source-textarea').value = source
   document.getElementById('source-editor').classList.remove('hidden')
   document.getElementById('chord-viewer-content').classList.add('hidden')
+
+  // Load backups
+  const backupsRes = await fetch(`/api/chordpro/${encodeURIComponent(file)}/backups`)
+  const backups = await backupsRes.json()
+  const restoreSelect = document.getElementById('restore-select')
+  const restoreBtn = document.getElementById('restore-btn')
+  if (backups.length > 0) {
+    restoreSelect.innerHTML = '<option value="">Restore backup...</option>' +
+      backups.map(b => `<option value="${b}">${b.split('.').slice(-1)[0].replace(/T/, ' ').replace(/-/g, ':').slice(0,16)}</option>`).join('')
+    restoreSelect.classList.remove('hidden')
+    restoreBtn.classList.remove('hidden')
+  } else {
+    restoreSelect.classList.add('hidden')
+    restoreBtn.classList.add('hidden')
+  }
 })
 
 document.getElementById('cancel-source-btn').addEventListener('click', () => {
   document.getElementById('source-editor').classList.add('hidden')
   document.getElementById('chord-viewer-content').classList.remove('hidden')
+})
+
+document.getElementById('restore-btn').addEventListener('click', async () => {
+  const viewer = document.getElementById('chord-viewer')
+  const file = viewer.dataset.currentFile
+  const backup = document.getElementById('restore-select').value
+  if (!file || !backup) return
+
+  if (!confirm('Restore this backup? Current version will be overwritten.')) return
+
+  await fetch(`/api/chordpro/${encodeURIComponent(file)}/restore`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ backup }),
+  })
+
+  // Reload the source into editor
+  const res = await fetch(`/api/chordpro/${encodeURIComponent(file)}?format=raw`)
+  document.getElementById('source-textarea').value = await res.text()
 })
 
 document.getElementById('save-source-btn').addEventListener('click', async () => {
