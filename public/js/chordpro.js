@@ -32,6 +32,11 @@ async function init() {
     const song = output.querySelector('.cp-song')
     if (song) song.style.setProperty('--cp-spacing', e.target.value)
   })
+
+  document.getElementById('font-select').addEventListener('change', (e) => {
+    const song = output.querySelector('.cp-song')
+    if (song) song.style.fontFamily = e.target.value
+  })
 }
 
 init()

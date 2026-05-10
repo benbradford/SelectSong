@@ -48,8 +48,10 @@ function renderChordLyricLine(line: ChordProLine): string {
     const endPos = nextChord ? nextChord.position : lyrics.length
     const syllable = lyrics.slice(c.position, endPos)
 
-    const minW = Math.max(simplified.length + 1, syllable.length)
-    html += `<span class="cp-syllable" style="min-width:${minW}ch"><span class="cp-chord">${escapeHtml(simplified)}</span>${escapeHtml(syllable)}</span>`
+    const hasLyrics = syllable.trim().length > 0
+    const minW = Math.max(simplified.length + 1, syllable.length || 2)
+    const lyricHtml = hasLyrics ? escapeHtml(syllable) : '&nbsp;'
+    html += `<span class="cp-syllable" style="min-width:${minW}ch"><span class="cp-chord">${escapeHtml(simplified)}</span>${lyricHtml}</span>`
     lastPos = endPos
   }
 
