@@ -14,6 +14,10 @@ export const songs = sqliteTable('songs', {
   themes: text('themes'),
   defaultKey: text('default_key'),
   chordproFile: text('chordpro_file'),
+  excluded: integer('excluded', { mode: 'boolean' }).notNull().default(false),
+  excludedReason: text('excluded_reason'),
+  sheetPdf: text('sheet_pdf'),
+  songselectUrl: text('songselect_url'),
 })
 
 export const serviceEntries = sqliteTable('service_entries', {

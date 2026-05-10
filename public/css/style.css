@@ -127,7 +127,94 @@ tr:hover { background: #f0f7ff; }
 #results { margin-top: 1.5rem; }
 #results h3 { margin: 1.5rem 0 0.75rem; font-size: 1.1rem; }
 
+#plan-header { margin-bottom: 1.5rem; }
+#plan-header h2 { font-size: 1.3rem; margin-bottom: 0.25rem; }
+#plan-header p { color: #555; margin-top: 0.25rem; }
+
+.plan-actions { margin-bottom: 1rem; }
+
+.plan-song-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: grab;
+  transition: box-shadow 0.15s;
+}
+.plan-song-card:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+.plan-song-card.dragging { opacity: 0.4; }
+.plan-song-card.drag-over { border-color: #2563eb; border-style: dashed; }
+
+.plan-song-drag {
+  color: #999;
+  font-size: 1.1rem;
+  cursor: grab;
+  user-select: none;
+}
+
+.plan-song-info { flex: 1; }
+.plan-song-position {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #666;
+  background: #f0f0f0;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  margin-right: 0.5rem;
+}
+.plan-song-name { font-weight: 500; }
+
+.plan-song-controls {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.plan-song-controls select {
+  padding: 0.25rem 0.4rem;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 0.8rem;
+}
+
+.btn-small {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 3px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-outline {
+  background: white;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+}
+.btn-outline:hover { background: #f0f7ff; }
+
+.chord-viewer-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.chord-viewer-header h3 { flex: 1; font-size: 1rem; }
+
+#chord-viewer {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e0e0e0;
+}
+
 @media print {
-  header, nav, #controls, #search, #suggest-form, #loading { display: none; }
+  header, nav, #controls, #search, #suggest-form, #loading, .plan-actions, .plan-song-controls, .plan-song-drag, #chord-viewer { display: none; }
   .chord-sheet { border: none; padding: 0; font-size: 11pt; }
+  .plan-song-card { border: none; padding: 0.3rem 0; margin: 0; box-shadow: none; }
 }

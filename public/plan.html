@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Plan - SelectSong</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>SelectSong</h1>
+    <nav>
+      <a href="/">Songs</a>
+      <a href="/services.html">Recent Services</a>
+      <a href="/chordpro.html">Chord Sheets</a>
+      <a href="/suggest.html">Suggest</a>
+      <a href="/plan.html" class="active">Plan</a>
+    </nav>
+  </header>
+  <main>
+    <section id="no-plan" class="hidden">
+      <p>No service plan found. Start a conversation in Claude Code to plan a service.</p>
+    </section>
+
+    <section id="plan-view" class="hidden">
+      <div id="plan-header">
+        <h2 id="plan-date"></h2>
+        <p id="plan-theme"></p>
+        <p id="plan-passage"></p>
+      </div>
+
+      <div class="plan-actions">
+        <button class="btn" id="print-summary-btn">Print Summary</button>
+      </div>
+
+      <div id="song-list"></div>
+
+      <div id="chord-viewer" class="hidden">
+        <div class="chord-viewer-header">
+          <h3 id="chord-viewer-title"></h3>
+          <button class="btn btn-small" id="chord-viewer-close">Close</button>
+          <button class="btn btn-small" id="chord-viewer-print">Print Chords</button>
+        </div>
+        <pre id="chord-viewer-content" class="chord-sheet"></pre>
+      </div>
+    </section>
+  </main>
+  <script src="/js/plan.js"></script>
+</body>
+</html>

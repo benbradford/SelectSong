@@ -9,7 +9,7 @@ const dataDir = resolve(import.meta.dirname, '../../data/chordpro')
 
 chordproRouter.get('/', (_req, res) => {
   if (!existsSync(dataDir)) return res.json([])
-  const files = readdirSync(dataDir).filter((f) => f.endsWith('.cho') || f.endsWith('.chordpro'))
+  const files = readdirSync(dataDir).filter((f) => f.endsWith('.cho') || f.endsWith('.chordpro') || f.endsWith('.txt'))
   res.json(files)
 })
 
