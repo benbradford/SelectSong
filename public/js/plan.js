@@ -12,13 +12,39 @@ const posLabels = {
 const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 async function loadPlan() {
-  const res = await fetch('/api/plan/latest')
-  const plan = await res.json()
+  // Load all plans into the selector
+  const allRes = await fetch('/api/plan/all')
+  const allPlans = await allRes.json()
 
-  if (!plan) {
+  if (!allPlans.length) {
     document.getElementById('no-plan').classList.remove('hidden')
     return
   }
+
+  const select = document.getElementById('plan-select')
+  select.innerHTML = ''
+  for (const p of allPlans) {
+    const opt = document.createElement('option')
+    opt.value = p.id
+    opt.textContent = `${p.date}${p.theme ? ' — ' + p.theme : ''}`
+    select.appendChild(opt)
+  }
+
+  // Check URL for specific plan ID
+  const urlParams = new URLSearchParams(window.location.search)
+  const requestedId = urlParams.get('id')
+  if (requestedId) select.value = requestedId
+
+  select.addEventListener('change', () => loadPlanById(select.value))
+
+  await loadPlanById(select.value)
+}
+
+async function loadPlanById(id) {
+  const res = await fetch(`/api/plan/${id}`)
+  const plan = await res.json()
+
+  if (!plan) return
 
   currentPlan = plan
   document.getElementById('plan-view').classList.remove('hidden')
@@ -203,6 +229,32 @@ async function handleViewChords(e) {
   document.getElementById('chord-viewer-title').textContent = file.replace(/\.(cho|chordpro|txt)$/, '')
   document.getElementById('chord-viewer-content').innerHTML = html
   viewer.classList.remove('hidden')
+
+  // Apply current font
+  const font = document.getElementById('font-select').value
+  const song = document.querySelector('#chord-viewer-content .cp-song')
+  if (song) {
+    song.style.fontFamily = font
+  }
+  setupPageBreakClickHandlers()
+
+  if (document.getElementById('auto-size').checked) {
+    autoFitSize()
+  } else {
+    const size = document.getElementById('size-slider').value
+    if (song) song.style.fontSize = size + 'px'
+  }
+}
+
+function setupPageBreakClickHandlers() {
+  const blanks = document.querySelectorAll('#chord-viewer-content .cp-blank')
+  blanks.forEach(blank => {
+    blank.classList.add('cp-blank-clickable')
+    blank.addEventListener('click', () => {
+      blank.classList.toggle('cp-page-break')
+      if (document.getElementById('auto-size').checked) autoFitSize()
+    })
+  })
 }
 
 document.getElementById('chord-viewer-close').addEventListener('click', () => {
@@ -211,12 +263,12 @@ document.getElementById('chord-viewer-close').addEventListener('click', () => {
 
 document.getElementById('chord-viewer-print').addEventListener('click', async () => {
   const content = document.getElementById('chord-viewer-content').innerHTML
-  const spacing = document.getElementById('spacing-slider').value
   const font = document.getElementById('font-select').value
+  const size = document.getElementById('size-slider').value
   const cssRes = await fetch('/css/chordpro.css')
   const css = await cssRes.text()
   const win = window.open('', '_blank')
-  win.document.write(`<html><head><style>${css} :root { --cp-spacing: ${spacing}; } .cp-song { font-family: ${font}; }</style></head><body>${content}</body></html>`)
+  win.document.write(`<html><head><style>${css} .cp-song { font-family: ${font}; font-size: ${size}px; } .cp-blank-clickable { cursor: default; } .cp-blank.cp-page-break { border: none; margin: 0; padding: 0; page-break-after: always; break-after: page; } .cp-blank.cp-page-break::after { display: none; }</style></head><body>${content}</body></html>`)
   win.document.close()
   setTimeout(() => win.print(), 100)
 })
@@ -225,14 +277,72 @@ document.getElementById('print-summary-btn').addEventListener('click', () => {
   window.print()
 })
 
-document.getElementById('spacing-slider').addEventListener('input', (e) => {
-  const song = document.querySelector('#chord-viewer-content .cp-song')
-  if (song) song.style.setProperty('--cp-spacing', e.target.value)
-})
 
 document.getElementById('font-select').addEventListener('change', (e) => {
   const song = document.querySelector('#chord-viewer-content .cp-song')
   if (song) song.style.fontFamily = e.target.value
+  if (document.getElementById('auto-size').checked) autoFitSize()
 })
+
+document.getElementById('size-slider').addEventListener('input', (e) => {
+  document.getElementById('auto-size').checked = false
+  const song = document.querySelector('#chord-viewer-content .cp-song')
+  if (song) song.style.fontSize = e.target.value + 'px'
+  document.getElementById('size-label').textContent = e.target.value + 'px'
+})
+
+document.getElementById('auto-size').addEventListener('change', (e) => {
+  if (e.target.checked) autoFitSize()
+})
+
+function autoFitSize() {
+  const song = document.querySelector('#chord-viewer-content .cp-song')
+  if (!song) return
+
+  // Find page break positions to determine page contents
+  const pageBreaks = song.querySelectorAll('.cp-page-break')
+  const pageHeight = 980 // A4 printable area approx
+
+  // Get all top-level children grouped by pages
+  const pages = []
+  let currentPage = []
+  for (const child of song.children) {
+    if (child.classList.contains('cp-page-break')) {
+      if (currentPage.length) pages.push(currentPage)
+      currentPage = []
+    } else {
+      currentPage.push(child)
+    }
+  }
+  if (currentPage.length) pages.push(currentPage)
+
+  // If no page breaks set, treat entire song as one page
+  if (pages.length === 0) pages.push([...song.children])
+
+  // Binary search for best font size that fits each page
+  let bestSize = 12
+  for (let size = 24; size >= 12; size--) {
+    song.style.fontSize = size + 'px'
+    let fits = true
+    for (const page of pages) {
+      let totalHeight = 0
+      for (const el of page) {
+        totalHeight += el.getBoundingClientRect().height
+      }
+      if (totalHeight > pageHeight) {
+        fits = false
+        break
+      }
+    }
+    if (fits) {
+      bestSize = size
+      break
+    }
+  }
+
+  song.style.fontSize = bestSize + 'px'
+  document.getElementById('size-slider').value = bestSize
+  document.getElementById('size-label').textContent = bestSize + 'px'
+}
 
 loadPlan()

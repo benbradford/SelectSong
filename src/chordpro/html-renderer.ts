@@ -41,7 +41,7 @@ function renderChordLyricLine(line: ChordProLine): string {
   for (const c of line.chords) {
     const before = lyrics.slice(lastPos, c.position)
     if (before) {
-      html += `<span class="cp-syllable">${escapeHtml(before)}</span>`
+      html += `<span class="cp-syllable" style="min-width:${before.length}ch">${escapeHtml(before)}</span>`
     }
     const simplified = simplifyChord(c.chord)
     const nextChord = line.chords[line.chords.indexOf(c) + 1]

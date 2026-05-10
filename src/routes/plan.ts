@@ -19,6 +19,15 @@ interface PlanSongInput {
   notes?: string
 }
 
+planRouter.get('/all', (_req, res) => {
+  const db = getDb()
+  const services = db.prepare(
+    'SELECT id, date, theme, music_leader FROM planned_services ORDER BY date DESC'
+  ).all()
+  db.close()
+  res.json(services)
+})
+
 planRouter.post('/', (req, res) => {
   const { date, theme, passage, leader, songs } = req.body as {
     date: string

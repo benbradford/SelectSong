@@ -28,14 +28,16 @@ async function init() {
   keySelect.addEventListener('change', loadSheet)
   printBtn.addEventListener('click', () => window.print())
 
-  document.getElementById('spacing-slider').addEventListener('input', (e) => {
-    const song = output.querySelector('.cp-song')
-    if (song) song.style.setProperty('--cp-spacing', e.target.value)
-  })
 
   document.getElementById('font-select').addEventListener('change', (e) => {
     const song = output.querySelector('.cp-song')
     if (song) song.style.fontFamily = e.target.value
+  })
+
+  document.getElementById('size-slider').addEventListener('input', (e) => {
+    const song = output.querySelector('.cp-song')
+    if (song) song.style.fontSize = e.target.value + 'px'
+    document.getElementById('size-label').textContent = e.target.value + 'px'
   })
 }
 

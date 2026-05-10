@@ -127,6 +127,16 @@ tr:hover { background: #f0f7ff; }
 #results { margin-top: 1.5rem; }
 #results h3 { margin: 1.5rem 0 0.75rem; font-size: 1.1rem; }
 
+.plan-selector {
+  margin-bottom: 1rem;
+}
+.plan-selector select {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
 #plan-header { margin-bottom: 1.5rem; }
 #plan-header h2 { font-size: 1.3rem; margin-bottom: 0.25rem; }
 #plan-header p { color: #555; margin-top: 0.25rem; }
