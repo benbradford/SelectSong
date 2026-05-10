@@ -211,16 +211,22 @@ document.getElementById('chord-viewer-close').addEventListener('click', () => {
 
 document.getElementById('chord-viewer-print').addEventListener('click', async () => {
   const content = document.getElementById('chord-viewer-content').innerHTML
+  const spacing = document.getElementById('spacing-slider').value
   const cssRes = await fetch('/css/chordpro.css')
   const css = await cssRes.text()
   const win = window.open('', '_blank')
-  win.document.write(`<html><head><style>${css}</style></head><body>${content}</body></html>`)
+  win.document.write(`<html><head><style>${css} :root { --cp-spacing: ${spacing}; }</style></head><body>${content}</body></html>`)
   win.document.close()
   setTimeout(() => win.print(), 100)
 })
 
 document.getElementById('print-summary-btn').addEventListener('click', () => {
   window.print()
+})
+
+document.getElementById('spacing-slider').addEventListener('input', (e) => {
+  const song = document.querySelector('#chord-viewer-content .cp-song')
+  if (song) song.style.setProperty('--cp-spacing', e.target.value)
 })
 
 loadPlan()

@@ -14,9 +14,24 @@ function escapeHtml(text: string): string {
     .replace(/>/g, '&gt;')
 }
 
+function isChordOnlyLine(line: ChordProLine): boolean {
+  if (!line.chords || line.chords.length === 0) return false
+  const lyrics = (line.lyrics || '').trim()
+  return lyrics === '' || /^[\s.|]*$/.test(lyrics)
+}
+
+function renderChordOnlyLine(line: ChordProLine): string {
+  const chords = line.chords!.map(c => simplifyChord(c.chord)).filter(c => c && c !== '|' && c !== '.')
+  return `<div class="cp-line cp-chords-only"><span class="cp-chord-inline">${chords.map(c => escapeHtml(c)).join('  ')}</span></div>`
+}
+
 function renderChordLyricLine(line: ChordProLine): string {
   if (!line.chords || line.chords.length === 0) {
     return `<div class="cp-line"><span class="cp-lyrics">${escapeHtml(line.lyrics || '')}</span></div>`
+  }
+
+  if (isChordOnlyLine(line)) {
+    return renderChordOnlyLine(line)
   }
 
   const lyrics = line.lyrics || ''
@@ -33,7 +48,8 @@ function renderChordLyricLine(line: ChordProLine): string {
     const endPos = nextChord ? nextChord.position : lyrics.length
     const syllable = lyrics.slice(c.position, endPos)
 
-    html += `<span class="cp-syllable"><span class="cp-chord">${escapeHtml(simplified)}</span>${escapeHtml(syllable)}</span>`
+    const minW = Math.max(simplified.length + 1, syllable.length)
+    html += `<span class="cp-syllable" style="min-width:${minW}ch"><span class="cp-chord">${escapeHtml(simplified)}</span>${escapeHtml(syllable)}</span>`
     lastPos = endPos
   }
 
@@ -57,28 +73,36 @@ export function renderToHtml(song: ChordProSong): string {
     html += `<p class="cp-meta">Key: ${escapeHtml(song.key)}</p>`
   }
 
-  let inSection = false
+  let inBlock = false
 
   for (const line of song.lines) {
     if (line.type === 'directive') {
       const d = line.directive!
       if (d.name === 'comment' || d.name === 'c') {
-        if (inSection) html += '</div>'
+        if (inBlock) html += '</div>'
         html += `<div class="cp-verse"><div class="cp-section">${escapeHtml(d.value)}</div>`
-        inSection = true
+        inBlock = true
       }
     } else if (line.type === 'comment') {
-      if (inSection) html += '</div>'
+      if (inBlock) html += '</div>'
       html += `<div class="cp-verse"><div class="cp-section">${escapeHtml(line.content || '')}</div>`
-      inSection = true
+      inBlock = true
     } else if (line.type === 'empty') {
+      if (inBlock) {
+        html += '</div>'
+        inBlock = false
+      }
       html += '<div class="cp-blank"></div>'
     } else if (line.type === 'chord-lyric') {
+      if (!inBlock) {
+        html += '<div class="cp-verse">'
+        inBlock = true
+      }
       html += renderChordLyricLine(line)
     }
   }
 
-  if (inSection) html += '</div>'
+  if (inBlock) html += '</div>'
 
   html += '</div>'
   return html
