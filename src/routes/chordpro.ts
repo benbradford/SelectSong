@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { readFileSync, existsSync, readdirSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs'
 import { resolve } from 'path'
 import { parseChordPro, transposeSong, semitonesFromTo, renderToText } from '../chordpro/parser.js'
 import { renderToHtml } from '../chordpro/html-renderer.js'
@@ -34,7 +34,20 @@ chordproRouter.get('/:filename', (req, res) => {
     res.type('text/plain').send(renderToText(song))
   } else if (format === 'html') {
     res.type('text/html').send(renderToHtml(song))
+  } else if (format === 'raw') {
+    res.type('text/plain').send(source)
   } else {
     res.json(song)
   }
+})
+
+chordproRouter.put('/:filename', (req, res) => {
+  const filePath = resolve(dataDir, req.params.filename)
+  if (!existsSync(filePath)) return res.status(404).json({ error: 'Not found' })
+
+  const { source } = req.body as { source: string }
+  if (!source) return res.status(400).json({ error: 'source is required' })
+
+  writeFileSync(filePath, source, 'utf-8')
+  res.json({ saved: true })
 })

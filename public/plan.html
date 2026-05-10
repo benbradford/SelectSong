@@ -48,6 +48,7 @@
           <button class="btn btn-small" id="chord-viewer-print">Print Chords</button>
         </div>
         <div class="cp-spacing-control">
+          <button class="btn btn-small" id="edit-source-btn">Edit Source</button>
           <label>Font:</label>
           <select id="font-select">
             <option value="Georgia, serif">Georgia</option>
@@ -62,6 +63,13 @@
           <input type="range" id="size-slider" min="12" max="24" value="18" step="1">
           <span id="size-label">18px</span>
           <label><input type="checkbox" id="auto-size" checked> Auto</label>
+        </div>
+        <div id="source-editor" class="hidden">
+          <textarea id="source-textarea"></textarea>
+          <div class="source-editor-actions">
+            <button class="btn btn-small" id="save-source-btn">Save</button>
+            <button class="btn btn-small btn-outline" id="cancel-source-btn">Cancel</button>
+          </div>
         </div>
         <div id="chord-viewer-content"></div>
       </div>

@@ -280,6 +280,44 @@ async function handleViewChords(e) {
   }
 }
 
+// Edit Source
+document.getElementById('edit-source-btn').addEventListener('click', async () => {
+  const viewer = document.getElementById('chord-viewer')
+  const file = viewer.dataset.currentFile
+  if (!file) return
+
+  const res = await fetch(`/api/chordpro/${encodeURIComponent(file)}?format=raw`)
+  const source = await res.text()
+
+  document.getElementById('source-textarea').value = source
+  document.getElementById('source-editor').classList.remove('hidden')
+  document.getElementById('chord-viewer-content').classList.add('hidden')
+})
+
+document.getElementById('cancel-source-btn').addEventListener('click', () => {
+  document.getElementById('source-editor').classList.add('hidden')
+  document.getElementById('chord-viewer-content').classList.remove('hidden')
+})
+
+document.getElementById('save-source-btn').addEventListener('click', async () => {
+  const viewer = document.getElementById('chord-viewer')
+  const file = viewer.dataset.currentFile
+  const source = document.getElementById('source-textarea').value
+
+  await fetch(`/api/chordpro/${encodeURIComponent(file)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source }),
+  })
+
+  // Re-render the preview
+  document.getElementById('source-editor').classList.add('hidden')
+  document.getElementById('chord-viewer-content').classList.remove('hidden')
+
+  const card = document.querySelector(`.plan-song-card .btn-chords[data-file="${file}"]`)
+  if (card) card.click()
+})
+
 function setupPageBreakClickHandlers() {
   const blanks = document.querySelectorAll('#chord-viewer-content .cp-blank')
   blanks.forEach(blank => {
