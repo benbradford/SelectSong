@@ -1,0 +1,50 @@
+{title: He Will Hold Me Fast}
+{artist: Ada Ruth Habershon, Matthew Merker}
+{key: G}
+{time: 3/2 + 2/2}
+{tempo: 66}
+{ccli_license: 163300}
+{ccli: 7016161}
+{copyright: 2013 Getty Music Publishing | Matthew Merker Music}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Intro    (3/2)}
+[|] [Gmaj7]  [.]  [G/B]  [|] [C2]          [|] [Gmaj7]  [.]  [G/B]  [|] [C2]          [|]
+
+{comment: Verse 1}
+[G]When I fear my [G/B]faith will [C]fail Christ will [D]hold me [G]fast
+[G]When the tempter [G/B]would pre - [C]vail He will [D]hold me [G]fast
+[Em]I could [D/F#]never   [G]keep my [C]hold through life's [B]fearful [Em]path
+[Em]For my [D/F#]love is [G/B]often   [C]cold He must [D]hold me [G]fast
+
+{comment: Chorus    (2/2)}
+[C]He will [D]hold me [Em]fast
+[Em]He will [D/F#]hold me [G]fast
+[G]For my [Am7]Savior [G/B]loves me [C]so
+(1.) [C]He will [D]hold me [Gmaj7]fast
+(2.) [C]He will [D]hold me [G]fast  (To Ch. / Ending)
+
+{comment: Turnaround    (3/2)}
+[|] [Gmaj7]  [.]  [G/B]  [|] [C2]          [|] [Gmaj7]  [.]  [G/B]  [|] [C2]          [|]
+
+{comment: Verse 2}
+[G]Those He saves are [G/B]His de - [C]light Christ will [D]hold me [G]fast
+[G]Precious in His [G/B]holy   [C]sight He will [D]hold me [G]fast
+[Em]He'll not [D/F#]let my [G]soul be [C]lost His Promis - [B]es shall [Em]last
+[Em]Bought by [D/F#]Him at [G/B]such a [C]cost He will [D]hold me [G]fast
+
+{comment: Verse 3}
+[Em9]For my life He bled and [C]died [C/E]Christ will [D/F#]hold me [G]fast
+[Em9]Justice has been satis - [C]fied He will [D]hold me [G]fast
+[Em]Raised with [D/F#]Him to [G/B]endless [C]life He will [B]hold me [Em]fast
+[Em]Till our [D/F#]faith is [G/B]turned to [C]sight when He [D]comes at [G]last
+
+{comment: Ending    (2/2)}
+[|][G]         [|][Am9]    [G/B]    [|][C]    [G/B]    [|][Am7]    [D7sus]    [|][G]         [|] 
+
+
+CCLI Song # 7016161
+© 2013 Getty Music Publishing | Matthew Merker Music
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction Licence.  Please report all copies.
+CCLI Licence No. 163300

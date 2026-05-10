@@ -7,6 +7,8 @@ import { chordproRouter } from './routes/chordpro.js'
 import { syncRouter } from './routes/sync.js'
 import { suggestRouter } from './routes/suggest.js'
 import { planRouter } from './routes/plan.js'
+import { terminalRouter } from './routes/terminal.js'
+import { uploadRouter } from './routes/upload.js'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -21,6 +23,8 @@ app.use('/api/chordpro', chordproRouter)
 app.use('/api/sync', syncRouter)
 app.use('/api/suggest', suggestRouter)
 app.use('/api/plan', planRouter)
+app.use('/api/terminal', terminalRouter)
+app.use('/api/upload', uploadRouter)
 
 app.listen(PORT, () => {
   console.log(`SelectSong running at http://localhost:${PORT}`)

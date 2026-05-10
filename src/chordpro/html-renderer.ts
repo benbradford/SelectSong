@@ -41,22 +41,25 @@ function renderChordLyricLine(line: ChordProLine): string {
   for (const c of line.chords) {
     const before = lyrics.slice(lastPos, c.position)
     if (before) {
-      html += `<span class="cp-syllable" style="min-width:${before.length}ch">${escapeHtml(before)}</span>`
+      const trimmed = before.replace(/\s+/g, ' ')
+      html += `<span class="cp-syllable">${escapeHtml(trimmed)}</span>`
     }
     const simplified = simplifyChord(c.chord)
     const nextChord = line.chords[line.chords.indexOf(c) + 1]
     const endPos = nextChord ? nextChord.position : lyrics.length
     const syllable = lyrics.slice(c.position, endPos)
 
-    const hasLyrics = syllable.trim().length > 0
-    const minW = Math.max(simplified.length + 1, syllable.length || 2)
-    const lyricHtml = hasLyrics ? escapeHtml(syllable) : '&nbsp;'
+    const trimmedSyllable = syllable.replace(/\s+/g, ' ').trimEnd()
+    const hasLyrics = trimmedSyllable.trim().length > 0
+    const minW = simplified.length + 1
+    const lyricHtml = hasLyrics ? escapeHtml(trimmedSyllable + ' ') : '&nbsp;'
     html += `<span class="cp-syllable" style="min-width:${minW}ch"><span class="cp-chord">${escapeHtml(simplified)}</span>${lyricHtml}</span>`
     lastPos = endPos
   }
 
   if (lastPos < lyrics.length) {
-    html += `<span class="cp-syllable">${escapeHtml(lyrics.slice(lastPos))}</span>`
+    const trailing = lyrics.slice(lastPos).replace(/\s+/g, ' ').trimEnd()
+    if (trailing) html += `<span class="cp-syllable">${escapeHtml(trailing)}</span>`
   }
 
   return `<div class="cp-line">${html}</div>`

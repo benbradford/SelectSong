@@ -57,17 +57,11 @@ Copy `.env.example` to `.env` and fill in:
 When the user asks for song suggestions:
 
 1. **Sync the ledger** first: `npx tsx src/scripts/sync.ts` (pulls latest from Google Sheets)
-2. **Query the database** for all non-excluded songs with play history:
+2. **Get all song candidates** with recency data (includes planned services as "recently played"):
    ```bash
-   npx tsx -e "
-   import Database from 'better-sqlite3'
-   const db = new Database('./data/selectsong.db')
-   const songs = db.prepare('SELECT id, name, is_hymn, author FROM songs WHERE excluded = 0 AND name != \"\" ORDER BY name').all()
-   const aliases = db.prepare('SELECT song_id, alias FROM song_aliases').all()
-   const entries = db.prepare('SELECT song_name, date FROM service_entries ORDER BY date DESC').all()
-   // ... match songs to entries via aliases, compute days since last played
-   "
+   npx tsx src/scripts/get-candidates.ts 2026-05-31
    ```
+   Pass the target date as an argument. This outputs all songs sorted by days since last played, including any already-planned services that haven't hit the ledger yet.
 3. **Consider**: thematic fit, recency (prefer 6+ weeks since last played), hymn balance (1-2 per set), energy flow
 4. **Present** ~5 recommendations + alternatives with ratings, positions, rationale
 5. **After agreement**, save the plan:

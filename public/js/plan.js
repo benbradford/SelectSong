@@ -12,12 +12,13 @@ const posLabels = {
 const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 async function loadPlan() {
-  // Load all plans into the selector
+  // Load upcoming plans into the selector
   const allRes = await fetch('/api/plan/all')
   const allPlans = await allRes.json()
 
   if (!allPlans.length) {
     document.getElementById('no-plan').classList.remove('hidden')
+    loadArchives()
     return
   }
 
@@ -38,6 +39,7 @@ async function loadPlan() {
   select.addEventListener('change', () => loadPlanById(select.value))
 
   await loadPlanById(select.value)
+  loadArchives()
 }
 
 async function loadPlanById(id) {
@@ -71,6 +73,11 @@ function renderSongs() {
       `<option value="${k}" ${k === currentKey ? 'selected' : ''}>${k}</option>`
     ).join('')
 
+    const needsUpload = !song.chordpro_file || !song.sheet_pdf
+    const uploadHtml = needsUpload
+      ? `<label class="btn btn-small btn-upload">Upload <input type="file" class="file-upload" data-song-id="${song.song_id}" multiple accept=".txt,.cho,.chordpro,.pdf" hidden></label>`
+      : ''
+
     el.innerHTML = `
       <div class="plan-song-drag">&#x2630;</div>
       <div class="plan-song-info">
@@ -92,6 +99,7 @@ function renderSongs() {
         ${song.songselect_url
           ? `<a href="${song.songselect_url}" target="_blank" class="btn btn-small btn-outline">SongSelect</a>`
           : ''}
+        ${uploadHtml}
       </div>
     `
 
@@ -110,6 +118,32 @@ function renderSongs() {
   container.querySelectorAll('.btn-chords').forEach(btn => {
     btn.addEventListener('click', handleViewChords)
   })
+
+  container.querySelectorAll('.file-upload').forEach(input => {
+    input.addEventListener('change', handleFileUpload)
+  })
+}
+
+async function handleFileUpload(e) {
+  const songId = e.target.dataset.songId
+  const files = e.target.files
+  if (!files.length) return
+
+  const formData = new FormData()
+  for (const file of files) {
+    formData.append('files', file, file.name)
+  }
+
+  const res = await fetch(`/api/upload/${songId}`, {
+    method: 'POST',
+    body: formData,
+  })
+
+  const result = await res.json()
+  if (result.updates) {
+    // Reload the plan to reflect new files
+    await loadPlanById(currentPlan.id)
+  }
 }
 
 function handleDragStart(e) {
@@ -343,6 +377,50 @@ function autoFitSize() {
   song.style.fontSize = bestSize + 'px'
   document.getElementById('size-slider').value = bestSize
   document.getElementById('size-label').textContent = bestSize + 'px'
+}
+
+// Archive button
+document.getElementById('archive-btn').addEventListener('click', async () => {
+  if (!currentPlan) return
+  if (!confirm(`Archive the plan for ${currentPlan.date}?`)) return
+
+  await fetch(`/api/plan/${currentPlan.id}/archive`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ archived: true }),
+  })
+
+  loadPlan()
+})
+
+async function loadArchives() {
+  const res = await fetch('/api/plan/all?archived=1')
+  const archived = await res.json()
+
+  const section = document.getElementById('archives-section')
+  const list = document.getElementById('archives-list')
+
+  if (!archived.length) {
+    section.classList.add('hidden')
+    return
+  }
+
+  section.classList.remove('hidden')
+  list.innerHTML = archived.map(p => `
+    <div class="service-card">
+      <h3>${p.date}${p.theme ? ' — ' + p.theme : ''}</h3>
+      <button class="btn btn-small btn-outline" onclick="unarchive(${p.id})">Restore</button>
+    </div>
+  `).join('')
+}
+
+async function unarchive(id) {
+  await fetch(`/api/plan/${id}/archive`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ archived: false }),
+  })
+  loadPlan()
 }
 
 loadPlan()

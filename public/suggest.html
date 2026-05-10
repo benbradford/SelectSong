@@ -20,8 +20,12 @@
   </header>
   <main>
     <section>
-      <h2>Get Song Suggestions</h2>
+      <h2>Plan a Service</h2>
       <form id="suggest-form">
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input type="date" id="date" required>
+        </div>
         <div class="form-group">
           <label for="theme">Theme</label>
           <input type="text" id="theme" placeholder="e.g. Life in the Spirit: the Spirit and Jesus" required>
@@ -30,29 +34,17 @@
           <label for="passage">Bible Passage</label>
           <input type="text" id="passage" placeholder="e.g. Acts 10:34-48" required>
         </div>
-        <button type="submit" class="btn" id="submit-btn">Get Suggestions</button>
+        <button type="submit" class="btn" id="submit-btn">Start Planning</button>
       </form>
 
-      <div id="loading" class="hidden">Thinking...</div>
-      <div id="results" class="hidden">
-        <h3>Recommended Set</h3>
-        <table id="recommendations-table">
-          <thead>
-            <tr><th>Position</th><th>Song</th><th>Rating</th><th>Rationale</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-
-        <h3>Alternatives</h3>
-        <table id="alternatives-table">
-          <thead>
-            <tr><th>Song</th><th>Rating</th><th>Best As</th><th>Rationale</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <div id="terminal-container" class="hidden">
+        <div class="terminal-header">
+          <span>Claude Code</span>
+          <button class="btn btn-small" id="stop-btn">Stop</button>
+          <a href="/plan.html" class="btn btn-small" id="view-plan-btn">View Plan</a>
+        </div>
+        <iframe id="terminal-frame" src=""></iframe>
       </div>
-
-      <div id="error" class="hidden error"></div>
     </section>
   </main>
   <script src="/js/suggest.js"></script>

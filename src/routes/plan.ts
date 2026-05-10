@@ -19,13 +19,23 @@ interface PlanSongInput {
   notes?: string
 }
 
-planRouter.get('/all', (_req, res) => {
+planRouter.get('/all', (req, res) => {
   const db = getDb()
+  const archived = req.query.archived === '1'
   const services = db.prepare(
-    'SELECT id, date, theme, music_leader FROM planned_services ORDER BY date DESC'
-  ).all()
+    `SELECT id, date, theme, music_leader, archived FROM planned_services WHERE archived = ? ORDER BY date DESC`
+  ).all(archived ? 1 : 0)
   db.close()
   res.json(services)
+})
+
+planRouter.patch('/:id/archive', (req, res) => {
+  const db = getDb()
+  const id = Number(req.params.id)
+  const { archived } = req.body as { archived: boolean }
+  db.prepare('UPDATE planned_services SET archived = ? WHERE id = ?').run(archived ? 1 : 0, id)
+  db.close()
+  res.json({ id, archived })
 })
 
 planRouter.post('/', (req, res) => {

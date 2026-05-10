@@ -1,0 +1,50 @@
+{title: Rejoice}
+{artist: Dustin Kensrue, Stuart Townend}
+{subtitle: (based on the recording by Dustin Kensrue)}
+{key: C}
+{time: 4/4}
+{tempo: 163}
+{ccli_license: 163300}
+{ccli: 7004663}
+{copyright: 2013 Dead Bird Theology | We Are Younger We Are Faster Music | Townend Songs}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|][C]           [|][C]           [|][Csus]        [|][Csus]        [|]
+
+{comment: Verse 1}
+Come and [C]stand before your maker full of [Csus]wonder full of fear 
+Come be - [C]hold His power and glory yet with [Csus]confidence draw near 
+For the [Am7]one who holds the heavens and com - [G(4)]mands the stars above 
+Is the [F2]God who bends to bless us with an unrelenting [G(4)]love 
+
+{comment: Chorus 1}
+Re - [C]joice 
+Come and [Am7]lift your hands and [F2]raise your [C]voice 
+He is [Am7]worthy of all [F2]praise re - [Am7]joice 
+Sing the [F2]mercies of your King and with [Am7]trembl - [G(4)]ing re - [C]joice 
+
+{comment: Verse 2}
+We are [C]children of the promise the be - [F2]loved of the Lord 
+Won with [C]everlasting kindness bought with [F2]sacrificial blood 
+Bringing [Am7]reconciliation to a [C/G]world that longs to know 
+The af - [F2]fections of a father who will never let them [G(4)]go 
+
+{comment: Verse 3}
+All our [C]sickness all our sorrows Jesus [Csus]carried up the hill 
+He has [C]walked this path before us He is [Csus]walking with us still 
+Turning [Am7]tragedy to triumph turning [G(4)]agony to praise 
+There is [F2]blessing in the battle so take heart and stand amazed 
+
+{comment: Chorus 2}
+Re - [C/E]joice 
+When you [F2]cry to Him He hears your [C/E]voice 
+He will [F2]wipe away your tears re - [Am7]joice 
+In the [F2]midst of suffering, He will [Am7]help you [G(4)]sing 
+
+
+CCLI Song # 7004663
+© 2013 Dead Bird Theology | We Are Younger We Are Faster Music | Townend Songs
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction Licence.  Please report all copies.
+CCLI Licence No. 163300
