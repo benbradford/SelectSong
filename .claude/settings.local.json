@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(git init *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(npx tsx *)",
+      "Bash(python3 *)"
     ]
   }
 }

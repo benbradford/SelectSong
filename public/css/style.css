@@ -98,7 +98,36 @@ tr:hover { background: #f0f7ff; }
 .service-card ul { list-style: none; padding: 0; }
 .service-card li { padding: 0.2rem 0; }
 
+.form-group {
+  margin-bottom: 1rem;
+}
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+.form-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.hidden { display: none; }
+.error { color: #dc2626; margin-top: 1rem; }
+
+#loading {
+  margin-top: 1rem;
+  color: #666;
+  font-style: italic;
+}
+
+#results { margin-top: 1.5rem; }
+#results h3 { margin: 1.5rem 0 0.75rem; font-size: 1.1rem; }
+
 @media print {
-  header, nav, #controls, #search { display: none; }
+  header, nav, #controls, #search, #suggest-form, #loading { display: none; }
   .chord-sheet { border: none; padding: 0; font-size: 11pt; }
 }
