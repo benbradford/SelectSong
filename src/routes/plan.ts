@@ -23,7 +23,7 @@ planRouter.get('/all', (req, res) => {
   const db = getDb()
   const archived = req.query.archived === '1'
   const services = db.prepare(
-    `SELECT id, date, theme, music_leader, archived FROM planned_services WHERE archived = ? ORDER BY date DESC`
+    `SELECT id, date, theme, music_leader, archived FROM planned_services WHERE archived = ? ORDER BY date ASC`
   ).all(archived ? 1 : 0)
   db.close()
   res.json(services)
