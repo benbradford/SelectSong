@@ -198,15 +198,20 @@ tr:hover { background: #f0f7ff; }
 }
 .plan-song-card:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
 
-.communion-divider {
-  margin: 1.5rem 0 0.75rem;
-  padding-top: 1rem;
+.section-divider, .communion-divider {
+  margin: 1rem 0 0.5rem;
+  padding-top: 0.75rem;
   border-top: 2px solid #e0e0e0;
 }
-.communion-divider h3 {
+.section-divider h3, .communion-divider h3 {
   font-size: 0.95rem;
   color: #666;
   font-weight: 600;
+}
+.section-divider:first-child {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
 }
 .communion-card { border-left: 3px solid #a78bfa; }
 .plan-song-card.dragging { opacity: 0.4; }
@@ -269,6 +274,69 @@ tr:hover { background: #f0f7ff; }
   cursor: pointer;
 }
 .btn-upload:hover { background: #dcfce7; }
+
+.btn-delete {
+  background: white;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  font-weight: bold;
+  line-height: 1;
+}
+.btn-delete:hover { background: #fef2f2; }
+
+.add-song-row {
+  margin: 0.5rem 0;
+}
+
+.song-swappable {
+  cursor: pointer;
+  border-bottom: 1px dashed #ccc;
+}
+.song-swappable:hover {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+.song-picker {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+.song-picker-search {
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+.song-picker-results {
+  max-height: 200px;
+  overflow-y: auto;
+}
+.song-picker-option {
+  padding: 0.4rem;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 0.85rem;
+}
+.song-picker-option:hover {
+  background: #e0edff;
+}
+.song-picker-empty {
+  padding: 0.4rem;
+  color: #999;
+  font-size: 0.85rem;
+}
+.song-picker-create {
+  color: #16a34a;
+  font-style: italic;
+  border-top: 1px solid #eee;
+  margin-top: 0.3rem;
+  padding-top: 0.5rem;
+}
 
 .chord-viewer-header {
   display: flex;

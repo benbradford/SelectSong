@@ -2,6 +2,7 @@ let currentPlan = null
 let draggedEl = null
 
 const posLabels = {
+  0: 'Pre-service',
   1: 'Intro',
   2: 'Pre-sermon 1',
   3: 'Pre-sermon 2',
@@ -60,61 +61,90 @@ async function loadPlanById(id) {
   renderSongs()
 }
 
+function buildSongCard(song, extraClass = '') {
+  const el = document.createElement('div')
+  el.className = `plan-song-card ${extraClass}`.trim()
+  el.draggable = true
+  el.dataset.songId = song.song_id
+  el.dataset.position = song.position
+
+  const currentKey = song.key || song.default_key || ''
+  const keyOptions = keys.map(k =>
+    `<option value="${k}" ${k === currentKey ? 'selected' : ''}>${k}</option>`
+  ).join('')
+
+  const needsUpload = !song.chordpro_file || !song.sheet_pdf
+  const uploadHtml = needsUpload
+    ? `<label class="btn btn-small btn-upload">Upload <input type="file" class="file-upload" data-song-id="${song.song_id}" multiple accept=".txt,.cho,.chordpro,.pdf" hidden></label>`
+    : ''
+
+  el.innerHTML = `
+    <div class="plan-song-drag">&#x2630;</div>
+    <div class="plan-song-info">
+      <span class="plan-song-position">${posLabels[song.position] ?? song.position}</span>
+      <span class="plan-song-name song-swappable">${song.name}</span>
+      ${song.is_hymn ? '<span class="badge badge-hymn">Hymn</span>' : ''}
+    </div>
+    <div class="plan-song-controls">
+      <select class="key-select" data-song-id="${song.song_id}">
+        <option value="">Key</option>
+        ${keyOptions}
+      </select>
+      ${song.chordpro_file
+        ? `<button class="btn btn-small btn-chords" data-file="${song.chordpro_file}" data-key="${currentKey}">Chords</button>`
+        : ''}
+      ${song.sheet_pdf
+        ? `<a href="/sheets/${encodeURIComponent(song.sheet_pdf)}" target="_blank" class="btn btn-small">PDF</a>`
+        : ''}
+      ${song.songselect_url
+        ? `<a href="${song.songselect_url}" target="_blank" class="btn btn-small btn-outline">SongSelect</a>`
+        : ''}
+      ${uploadHtml}
+      <button class="btn btn-small btn-delete" data-song-id="${song.song_id}">&times;</button>
+    </div>
+  `
+
+  el.addEventListener('dragstart', handleDragStart)
+  el.addEventListener('dragover', handleDragOver)
+  el.addEventListener('drop', handleDrop)
+  el.addEventListener('dragend', handleDragEnd)
+
+  return el
+}
+
 function renderSongs() {
   const container = document.getElementById('song-list')
   container.innerHTML = ''
 
-  const mainSongs = currentPlan.songs.filter(s => s.position <= 5)
+  const preServiceSongs = currentPlan.songs.filter(s => s.position === 0)
+  const mainSongs = currentPlan.songs.filter(s => s.position >= 1 && s.position <= 5)
   const communionSongs = currentPlan.songs.filter(s => s.position >= 6)
 
+  if (preServiceSongs.length > 0) {
+    const divider = document.createElement('div')
+    divider.className = 'section-divider'
+    divider.innerHTML = '<h3>Pre-service</h3>'
+    container.appendChild(divider)
+  }
+
+  for (const song of preServiceSongs) {
+    container.appendChild(buildSongCard(song))
+  }
+
+  const addPreBtn = document.createElement('div')
+  addPreBtn.className = 'add-song-row'
+  addPreBtn.innerHTML = preServiceSongs.length === 0
+    ? `<button class="btn btn-small btn-outline add-song-btn" data-section="preservice">+ Add Pre-service Song</button>`
+    : `<button class="btn btn-small btn-outline add-song-btn" data-section="preservice">+ Add Pre-service Song</button>`
+  container.appendChild(addPreBtn)
+
+  const mainDivider = document.createElement('div')
+  mainDivider.className = 'section-divider'
+  mainDivider.innerHTML = '<h3>Main Set</h3>'
+  container.appendChild(mainDivider)
+
   for (const song of mainSongs) {
-    const el = document.createElement('div')
-    el.className = 'plan-song-card'
-    el.draggable = true
-    el.dataset.songId = song.song_id
-    el.dataset.position = song.position
-
-    const currentKey = song.key || song.default_key || ''
-    const keyOptions = keys.map(k =>
-      `<option value="${k}" ${k === currentKey ? 'selected' : ''}>${k}</option>`
-    ).join('')
-
-    const needsUpload = !song.chordpro_file || !song.sheet_pdf
-    const uploadHtml = needsUpload
-      ? `<label class="btn btn-small btn-upload">Upload <input type="file" class="file-upload" data-song-id="${song.song_id}" multiple accept=".txt,.cho,.chordpro,.pdf" hidden></label>`
-      : ''
-
-    el.innerHTML = `
-      <div class="plan-song-drag">&#x2630;</div>
-      <div class="plan-song-info">
-        <span class="plan-song-position">${posLabels[song.position] || song.position}</span>
-        <span class="plan-song-name">${song.name}</span>
-        ${song.is_hymn ? '<span class="badge badge-hymn">Hymn</span>' : ''}
-      </div>
-      <div class="plan-song-controls">
-        <select class="key-select" data-song-id="${song.song_id}">
-          <option value="">Key</option>
-          ${keyOptions}
-        </select>
-        ${song.chordpro_file
-          ? `<button class="btn btn-small btn-chords" data-file="${song.chordpro_file}" data-key="${currentKey}">Chords</button>`
-          : ''}
-        ${song.sheet_pdf
-          ? `<a href="/sheets/${encodeURIComponent(song.sheet_pdf)}" target="_blank" class="btn btn-small">PDF</a>`
-          : ''}
-        ${song.songselect_url
-          ? `<a href="${song.songselect_url}" target="_blank" class="btn btn-small btn-outline">SongSelect</a>`
-          : ''}
-        ${uploadHtml}
-      </div>
-    `
-
-    el.addEventListener('dragstart', handleDragStart)
-    el.addEventListener('dragover', handleDragOver)
-    el.addEventListener('drop', handleDrop)
-    el.addEventListener('dragend', handleDragEnd)
-
-    container.appendChild(el)
+    container.appendChild(buildSongCard(song))
   }
 
   if (communionSongs.length > 0) {
@@ -124,53 +154,32 @@ function renderSongs() {
     container.appendChild(divider)
 
     for (const song of communionSongs) {
-      const el = document.createElement('div')
-      el.className = 'plan-song-card communion-card'
-      el.draggable = true
-      el.dataset.songId = song.song_id
-      el.dataset.position = song.position
-
-      const currentKey = song.key || song.default_key || ''
-      const keyOptions = keys.map(k =>
-        `<option value="${k}" ${k === currentKey ? 'selected' : ''}>${k}</option>`
-      ).join('')
-
-      const needsUpload = !song.chordpro_file || !song.sheet_pdf
-      const uploadHtml = needsUpload
-        ? `<label class="btn btn-small btn-upload">Upload <input type="file" class="file-upload" data-song-id="${song.song_id}" multiple accept=".txt,.cho,.chordpro,.pdf" hidden></label>`
-        : ''
-
-      el.innerHTML = `
-        <div class="plan-song-drag">&#x2630;</div>
-        <div class="plan-song-info">
-          <span class="plan-song-position">${posLabels[song.position] || song.position}</span>
-          <span class="plan-song-name">${song.name}</span>
-        </div>
-        <div class="plan-song-controls">
-          <select class="key-select" data-song-id="${song.song_id}">
-            <option value="">Key</option>
-            ${keyOptions}
-          </select>
-          ${song.chordpro_file
-            ? `<button class="btn btn-small btn-chords" data-file="${song.chordpro_file}" data-key="${currentKey}">Chords</button>`
-            : ''}
-          ${song.sheet_pdf
-            ? `<a href="/sheets/${encodeURIComponent(song.sheet_pdf)}" target="_blank" class="btn btn-small">PDF</a>`
-            : ''}
-          ${song.songselect_url
-            ? `<a href="${song.songselect_url}" target="_blank" class="btn btn-small btn-outline">SongSelect</a>`
-            : ''}
-          ${uploadHtml}
-        </div>
-      `
-
-      el.addEventListener('dragstart', handleDragStart)
-      el.addEventListener('dragover', handleDragOver)
-      el.addEventListener('drop', handleDrop)
-      el.addEventListener('dragend', handleDragEnd)
-
-      container.appendChild(el)
+      container.appendChild(buildSongCard(song, 'communion-card'))
     }
+  }
+
+  // Add "Add Song" buttons
+  const addMainBtn = document.createElement('div')
+  addMainBtn.className = 'add-song-row'
+  addMainBtn.innerHTML = `<button class="btn btn-small btn-outline add-song-btn" data-section="main">+ Add Song</button>`
+  // Insert before communion divider or at end
+  const communionDiv = container.querySelector('.communion-divider')
+  if (communionDiv) {
+    container.insertBefore(addMainBtn, communionDiv)
+  } else {
+    container.appendChild(addMainBtn)
+  }
+
+  if (communionSongs.length > 0 || container.querySelector('.communion-divider')) {
+    const addCommunionBtn = document.createElement('div')
+    addCommunionBtn.className = 'add-song-row'
+    addCommunionBtn.innerHTML = `<button class="btn btn-small btn-outline add-song-btn" data-section="communion">+ Add Communion Song</button>`
+    container.appendChild(addCommunionBtn)
+  } else {
+    const addCommunionBtn = document.createElement('div')
+    addCommunionBtn.className = 'add-song-row'
+    addCommunionBtn.innerHTML = `<button class="btn btn-small btn-outline add-song-btn" data-section="communion">+ Add Communion Song</button>`
+    container.appendChild(addCommunionBtn)
   }
 
   container.querySelectorAll('.key-select').forEach(select => {
@@ -184,6 +193,151 @@ function renderSongs() {
   container.querySelectorAll('.file-upload').forEach(input => {
     input.addEventListener('change', handleFileUpload)
   })
+
+  container.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', handleDeleteSong)
+  })
+
+  container.querySelectorAll('.song-swappable').forEach(el => {
+    el.addEventListener('click', handleSwapSong)
+  })
+
+  container.querySelectorAll('.add-song-btn').forEach(btn => {
+    btn.addEventListener('click', handleAddSong)
+  })
+}
+
+async function handleDeleteSong(e) {
+  const songId = e.currentTarget.dataset.songId
+  if (!confirm('Remove this song from the plan?')) return
+
+  await fetch(`/api/plan/${currentPlan.id}/songs/${songId}`, {
+    method: 'DELETE',
+  })
+
+  await loadPlanById(currentPlan.id)
+}
+
+let allSongsCache = null
+
+async function ensureSongsCache() {
+  if (!allSongsCache) {
+    const res = await fetch('/api/songs')
+    allSongsCache = await res.json()
+  }
+  return allSongsCache
+}
+
+function createSongPicker(onSelect, onCancel) {
+  const wrapper = document.createElement('div')
+  wrapper.className = 'song-picker'
+  wrapper.innerHTML = `
+    <input type="text" class="song-picker-search" placeholder="Search songs...">
+    <div class="song-picker-results"></div>
+  `
+
+  const search = wrapper.querySelector('.song-picker-search')
+  const results = wrapper.querySelector('.song-picker-results')
+
+  search.addEventListener('input', async () => {
+    const songs = await ensureSongsCache()
+    const query = search.value.toLowerCase()
+    if (query.length < 2) { results.innerHTML = ''; return }
+
+    const existing = currentPlan.songs.map(s => s.song_id)
+    const matches = songs
+      .filter(s => !s.excluded && s.name && s.name.toLowerCase().includes(query))
+      .filter(s => !existing.includes(s.id))
+      .slice(0, 8)
+
+    let html = matches.map(s =>
+      `<div class="song-picker-option" data-id="${s.id}">${s.name}${s.isHymn ? ' <span class="badge badge-hymn">Hymn</span>' : ''}</div>`
+    ).join('')
+
+    html += `<div class="song-picker-option song-picker-create" data-name="${search.value}">+ Add "${search.value}" as new song</div>`
+
+    results.innerHTML = html
+
+    results.querySelectorAll('.song-picker-option:not(.song-picker-create)').forEach(opt => {
+      opt.addEventListener('click', () => {
+        onSelect(Number(opt.dataset.id))
+        wrapper.remove()
+      })
+    })
+
+    results.querySelector('.song-picker-create')?.addEventListener('click', async () => {
+      const name = search.value.trim()
+      if (!name) return
+      const res = await fetch('/api/songs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      })
+      const newSong = await res.json()
+      allSongsCache = null
+      onSelect(newSong.id)
+      wrapper.remove()
+    })
+  })
+
+  search.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (onCancel) onCancel()
+      wrapper.remove()
+    }
+  })
+
+  setTimeout(() => search.focus(), 50)
+  return wrapper
+}
+
+async function handleSwapSong(e) {
+  const card = e.currentTarget.closest('.plan-song-card')
+  const oldSongId = Number(card.dataset.songId)
+  const position = Number(card.dataset.position)
+
+  const existing = card.querySelector('.song-picker')
+  if (existing) { existing.remove(); return }
+
+  const picker = createSongPicker(async (newSongId) => {
+    await fetch(`/api/plan/${currentPlan.id}/songs/${oldSongId}`, { method: 'DELETE' })
+    await fetch(`/api/plan/${currentPlan.id}/songs/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ songId: newSongId, position }),
+    })
+    await loadPlanById(currentPlan.id)
+  })
+
+  card.appendChild(picker)
+}
+
+async function handleAddSong(e) {
+  const section = e.currentTarget.dataset.section
+  const row = e.currentTarget.closest('.add-song-row')
+
+  const existing = row.querySelector('.song-picker')
+  if (existing) { existing.remove(); return }
+
+  const picker = createSongPicker(async (songId) => {
+    let position
+    if (section === 'communion') {
+      position = Math.max(6, ...currentPlan.songs.filter(s => s.position >= 6).map(s => s.position), 5) + 1
+    } else if (section === 'preservice') {
+      position = 0
+    } else {
+      position = Math.max(...currentPlan.songs.filter(s => s.position >= 1 && s.position <= 5).map(s => s.position), 0) + 1
+    }
+
+    await fetch(`/api/plan/${currentPlan.id}/songs/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ songId, position }),
+    })
+    await loadPlanById(currentPlan.id)
+  })
+
+  row.appendChild(picker)
 }
 
 async function handleFileUpload(e) {

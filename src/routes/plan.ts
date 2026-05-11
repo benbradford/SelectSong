@@ -116,6 +116,34 @@ planRouter.get('/:id', (req, res) => {
   res.json({ ...service, songs })
 })
 
+planRouter.post('/:id/songs/add', (req, res) => {
+  const serviceId = Number(req.params.id)
+  const { songId, position, key } = req.body as { songId: number; position: number; key?: string }
+
+  if (!songId || !position) {
+    return res.status(400).json({ error: 'songId and position are required' })
+  }
+
+  const db = getDb()
+  db.prepare(
+    'INSERT INTO planned_service_songs (service_id, song_id, position, key) VALUES (?, ?, ?, ?)'
+  ).run(serviceId, songId, position, key || null)
+  db.close()
+  res.json({ added: true })
+})
+
+planRouter.delete('/:id/songs/:songId', (req, res) => {
+  const serviceId = Number(req.params.id)
+  const songId = Number(req.params.songId)
+
+  const db = getDb()
+  db.prepare(
+    'DELETE FROM planned_service_songs WHERE service_id = ? AND song_id = ?'
+  ).run(serviceId, songId)
+  db.close()
+  res.json({ deleted: true })
+})
+
 planRouter.patch('/:id/songs', (req, res) => {
   const { songs } = req.body as { songs: PlanSongInput[] }
   const serviceId = Number(req.params.id)

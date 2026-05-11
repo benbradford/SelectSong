@@ -25,6 +25,19 @@ songsRouter.get('/:id', (req, res) => {
   res.json(song)
 })
 
+songsRouter.post('/', (req, res) => {
+  const { name } = req.body as { name: string }
+  if (!name) return res.status(400).json({ error: 'name is required' })
+
+  const result = db.insert(schema.songs).values({ name }).run()
+  const newSong = db
+    .select()
+    .from(schema.songs)
+    .where(eq(schema.songs.id, Number(result.lastInsertRowid)))
+    .get()
+  res.json(newSong)
+})
+
 songsRouter.patch('/:id', (req, res) => {
   const id = Number(req.params.id)
   db.update(schema.songs).set(req.body).where(eq(schema.songs.id, id)).run()
