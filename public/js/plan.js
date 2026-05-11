@@ -7,6 +7,9 @@ const posLabels = {
   3: 'Pre-sermon 2',
   4: 'Pre-sermon 3',
   5: 'Outro',
+  6: 'Communion 1',
+  7: 'Communion 2',
+  8: 'Communion 3',
 }
 
 const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
@@ -61,7 +64,10 @@ function renderSongs() {
   const container = document.getElementById('song-list')
   container.innerHTML = ''
 
-  for (const song of currentPlan.songs) {
+  const mainSongs = currentPlan.songs.filter(s => s.position <= 5)
+  const communionSongs = currentPlan.songs.filter(s => s.position >= 6)
+
+  for (const song of mainSongs) {
     const el = document.createElement('div')
     el.className = 'plan-song-card'
     el.draggable = true
@@ -109,6 +115,62 @@ function renderSongs() {
     el.addEventListener('dragend', handleDragEnd)
 
     container.appendChild(el)
+  }
+
+  if (communionSongs.length > 0) {
+    const divider = document.createElement('div')
+    divider.className = 'communion-divider'
+    divider.innerHTML = '<h3>Communion</h3>'
+    container.appendChild(divider)
+
+    for (const song of communionSongs) {
+      const el = document.createElement('div')
+      el.className = 'plan-song-card communion-card'
+      el.draggable = true
+      el.dataset.songId = song.song_id
+      el.dataset.position = song.position
+
+      const currentKey = song.key || song.default_key || ''
+      const keyOptions = keys.map(k =>
+        `<option value="${k}" ${k === currentKey ? 'selected' : ''}>${k}</option>`
+      ).join('')
+
+      const needsUpload = !song.chordpro_file || !song.sheet_pdf
+      const uploadHtml = needsUpload
+        ? `<label class="btn btn-small btn-upload">Upload <input type="file" class="file-upload" data-song-id="${song.song_id}" multiple accept=".txt,.cho,.chordpro,.pdf" hidden></label>`
+        : ''
+
+      el.innerHTML = `
+        <div class="plan-song-drag">&#x2630;</div>
+        <div class="plan-song-info">
+          <span class="plan-song-position">${posLabels[song.position] || song.position}</span>
+          <span class="plan-song-name">${song.name}</span>
+        </div>
+        <div class="plan-song-controls">
+          <select class="key-select" data-song-id="${song.song_id}">
+            <option value="">Key</option>
+            ${keyOptions}
+          </select>
+          ${song.chordpro_file
+            ? `<button class="btn btn-small btn-chords" data-file="${song.chordpro_file}" data-key="${currentKey}">Chords</button>`
+            : ''}
+          ${song.sheet_pdf
+            ? `<a href="/sheets/${encodeURIComponent(song.sheet_pdf)}" target="_blank" class="btn btn-small">PDF</a>`
+            : ''}
+          ${song.songselect_url
+            ? `<a href="${song.songselect_url}" target="_blank" class="btn btn-small btn-outline">SongSelect</a>`
+            : ''}
+          ${uploadHtml}
+        </div>
+      `
+
+      el.addEventListener('dragstart', handleDragStart)
+      el.addEventListener('dragover', handleDragOver)
+      el.addEventListener('drop', handleDrop)
+      el.addEventListener('dragend', handleDragEnd)
+
+      container.appendChild(el)
+    }
   }
 
   container.querySelectorAll('.key-select').forEach(select => {

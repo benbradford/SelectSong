@@ -197,6 +197,18 @@ tr:hover { background: #f0f7ff; }
   transition: box-shadow 0.15s;
 }
 .plan-song-card:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+
+.communion-divider {
+  margin: 1.5rem 0 0.75rem;
+  padding-top: 1rem;
+  border-top: 2px solid #e0e0e0;
+}
+.communion-divider h3 {
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 600;
+}
+.communion-card { border-left: 3px solid #a78bfa; }
 .plan-song-card.dragging { opacity: 0.4; }
 .plan-song-card.drag-over { border-color: #2563eb; border-style: dashed; }
 
