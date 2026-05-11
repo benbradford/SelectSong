@@ -120,7 +120,7 @@ planRouter.post('/:id/songs/add', (req, res) => {
   const serviceId = Number(req.params.id)
   const { songId, position, key } = req.body as { songId: number; position: number; key?: string }
 
-  if (!songId || !position) {
+  if (!songId || position === undefined || position === null) {
     return res.status(400).json({ error: 'songId and position are required' })
   }
 

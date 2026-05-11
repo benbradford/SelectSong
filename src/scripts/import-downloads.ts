@@ -57,19 +57,25 @@ function matchSongByFilename(filename: string): { id: number; name: string } | n
     for (const candidate of candidates) {
       if (!candidate) continue
 
-      // Exact match
+      // Exact match — highest priority
       if (fileNorm === candidate) return song
 
-      // File contains full song name
-      if (fileNorm.includes(candidate) && candidate.length > bestScore) {
-        bestMatch = song
-        bestScore = candidate.length
+      // File contains full song name — score by how close the lengths are (prefer tighter matches)
+      if (fileNorm.includes(candidate)) {
+        const score = candidate.length * 1000 - Math.abs(fileNorm.length - candidate.length)
+        if (score > bestScore) {
+          bestMatch = song
+          bestScore = score
+        }
       }
 
-      // Song name contains full file name (only if file name is reasonably long)
-      if (fileNorm.length >= 6 && candidate.includes(fileNorm) && fileNorm.length > bestScore) {
-        bestMatch = song
-        bestScore = fileNorm.length
+      // Song name contains full file name — only if file name is reasonably specific
+      if (fileNorm.length >= 6 && candidate.includes(fileNorm)) {
+        const score = fileNorm.length * 1000 - Math.abs(candidate.length - fileNorm.length)
+        if (score > bestScore) {
+          bestMatch = song
+          bestScore = score
+        }
       }
     }
   }
