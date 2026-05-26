@@ -142,4 +142,23 @@
   .cp-blank-clickable {
     cursor: default;
   }
+  .cp-two-col-row {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+.cp-two-col-header {
+  margin-bottom: 0.5em;
+}
+
+.cp-two-col-row {
+  display: flex;
+  gap: 2em;
+  margin-bottom: 1em;
+}
+
+.cp-two-col-row .cp-col {
+  flex: 1;
+  min-width: 0;
 }

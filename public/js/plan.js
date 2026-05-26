@@ -1,19 +1,16 @@
 let currentPlan = null
 let draggedEl = null
+let manualBreaksMode = false
 
-const posLabels = {
-  0: 'Pre-service',
-  1: 'Intro',
-  2: 'Pre-sermon 1',
-  3: 'Pre-sermon 2',
-  4: 'Pre-sermon 3',
-  5: 'Outro',
-  6: 'Communion 1',
-  7: 'Communion 2',
-  8: 'Communion 3',
+const COMMUNION_OFFSET = 1000
+
+function posLabel(pos) {
+  if (pos === 0) return 'Pre-service'
+  if (pos >= COMMUNION_OFFSET) return `Communion ${pos - COMMUNION_OFFSET + 1}`
+  return `Song ${pos}`
 }
 
-const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+const keys = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B']
 
 async function loadPlan() {
   // Load upcoming plans into the selector
@@ -78,12 +75,14 @@ function buildSongCard(song, extraClass = '') {
     ? `<label class="btn btn-small btn-upload">Upload <input type="file" class="file-upload" data-song-id="${song.song_id}" multiple accept=".txt,.cho,.chordpro,.pdf" hidden></label>`
     : ''
 
+  const showNotes = song.position >= 1 && song.position < COMMUNION_OFFSET
   el.innerHTML = `
     <div class="plan-song-drag">&#x2630;</div>
     <div class="plan-song-info">
-      <span class="plan-song-position">${posLabels[song.position] ?? song.position}</span>
+      <span class="plan-song-position">${posLabel(song.position)}</span>
       <span class="plan-song-name song-swappable">${song.name}</span>
       ${song.is_hymn ? '<span class="badge badge-hymn">Hymn</span>' : ''}
+      ${showNotes ? `<input class="plan-song-notes-input" placeholder="Justification..." value="${(song.notes || '').replace(/"/g, '&quot;')}" data-song-id="${song.song_id}">` : ''}
     </div>
     <div class="plan-song-controls">
       <select class="key-select" data-song-id="${song.song_id}">
@@ -117,8 +116,8 @@ function renderSongs() {
   container.innerHTML = ''
 
   const preServiceSongs = currentPlan.songs.filter(s => s.position === 0)
-  const mainSongs = currentPlan.songs.filter(s => s.position >= 1 && s.position <= 5)
-  const communionSongs = currentPlan.songs.filter(s => s.position >= 6)
+  const mainSongs = currentPlan.songs.filter(s => s.position >= 1 && s.position < COMMUNION_OFFSET)
+  const communionSongs = currentPlan.songs.filter(s => s.position >= COMMUNION_OFFSET)
 
   if (preServiceSongs.length > 0) {
     const divider = document.createElement('div')
@@ -204,6 +203,11 @@ function renderSongs() {
 
   container.querySelectorAll('.add-song-btn').forEach(btn => {
     btn.addEventListener('click', handleAddSong)
+  })
+
+  container.querySelectorAll('.plan-song-notes-input').forEach(input => {
+    input.addEventListener('blur', handleNotesChange)
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.target.blur() })
   })
 }
 
@@ -322,11 +326,13 @@ async function handleAddSong(e) {
   const picker = createSongPicker(async (songId) => {
     let position
     if (section === 'communion') {
-      position = Math.max(6, ...currentPlan.songs.filter(s => s.position >= 6).map(s => s.position), 5) + 1
+      const communionPositions = currentPlan.songs.filter(s => s.position >= COMMUNION_OFFSET).map(s => s.position)
+      position = Math.max(COMMUNION_OFFSET, ...communionPositions, COMMUNION_OFFSET - 1) + 1
     } else if (section === 'preservice') {
       position = 0
     } else {
-      position = Math.max(...currentPlan.songs.filter(s => s.position >= 1 && s.position <= 5).map(s => s.position), 0) + 1
+      const mainPositions = currentPlan.songs.filter(s => s.position >= 1 && s.position < COMMUNION_OFFSET).map(s => s.position)
+      position = Math.max(...mainPositions, 0) + 1
     }
 
     await fetch(`/api/plan/${currentPlan.id}/songs/add`, {
@@ -404,19 +410,40 @@ function handleDragEnd(e) {
   draggedEl = null
 }
 
-async function saveOrder() {
+function collectSongsFromCards() {
   const container = document.getElementById('song-list')
   const cards = [...container.querySelectorAll('.plan-song-card')]
-
-  const songs = cards.map((card, i) => {
+  const preSongs = []
+  const mainSongs = []
+  const communionSongs = []
+  for (const card of cards) {
+    const origPos = Number(card.dataset.position)
     const songId = Number(card.dataset.songId)
     const keySelect = card.querySelector('.key-select')
-    return {
-      songId,
-      position: i + 1,
-      key: keySelect?.value || null,
-    }
+    const notesInput = card.querySelector('.plan-song-notes-input')
+    const entry = { songId, key: keySelect?.value || null, notes: notesInput?.value || null }
+    if (origPos === 0) preSongs.push(entry)
+    else if (origPos >= COMMUNION_OFFSET) communionSongs.push(entry)
+    else mainSongs.push(entry)
+  }
+  return [
+    ...preSongs.map(s => ({ ...s, position: 0 })),
+    ...mainSongs.map((s, i) => ({ ...s, position: i + 1 })),
+    ...communionSongs.map((s, i) => ({ ...s, position: i + COMMUNION_OFFSET })),
+  ]
+}
+
+async function handleNotesChange() {
+  const songs = collectSongsFromCards()
+  await fetch(`/api/plan/${currentPlan.id}/songs`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ songs }),
   })
+}
+
+async function saveOrder() {
+  const songs = collectSongsFromCards()
 
   await fetch(`/api/plan/${currentPlan.id}/songs`, {
     method: 'PATCH',
@@ -431,18 +458,7 @@ async function saveOrder() {
 }
 
 async function handleKeyChange(e) {
-  const container = document.getElementById('song-list')
-  const cards = [...container.querySelectorAll('.plan-song-card')]
-
-  const songs = cards.map((card, i) => {
-    const songId = Number(card.dataset.songId)
-    const keySelect = card.querySelector('.key-select')
-    return {
-      songId,
-      position: i + 1,
-      key: keySelect?.value || null,
-    }
-  })
+  const songs = collectSongsFromCards()
 
   await fetch(`/api/plan/${currentPlan.id}/songs`, {
     method: 'PATCH',
@@ -474,6 +490,7 @@ async function handleViewChords(e) {
   const res = await fetch(`/api/chordpro/${encodeURIComponent(file)}?${params}`)
   const html = await res.text()
 
+  manualBreaksMode = false
   const viewer = document.getElementById('chord-viewer')
   viewer.dataset.currentFile = file
   document.getElementById('chord-viewer-title').textContent = file.replace(/\.(cho|chordpro|txt)$/, '')
@@ -502,7 +519,13 @@ document.getElementById('edit-source-btn').addEventListener('click', async () =>
   const file = viewer.dataset.currentFile
   if (!file) return
 
-  const res = await fetch(`/api/chordpro/${encodeURIComponent(file)}?format=raw`)
+  const card = document.querySelector(`.plan-song-card .btn-chords[data-file="${file}"]`)?.closest('.plan-song-card')
+  const keySelect = card?.querySelector('.key-select')
+  const currentKey = keySelect?.value || ''
+  const params = new URLSearchParams({ format: 'raw' })
+  if (currentKey) params.set('key', currentKey)
+
+  const res = await fetch(`/api/chordpro/${encodeURIComponent(file)}?${params}`)
   const source = await res.text()
 
   document.getElementById('source-textarea').value = source
@@ -573,8 +596,21 @@ function setupPageBreakClickHandlers() {
   blanks.forEach(blank => {
     blank.classList.add('cp-blank-clickable')
     blank.addEventListener('click', () => {
+      manualBreaksMode = true
+
+      // Clear all auto-breaks
+      const song = document.querySelector('#chord-viewer-content .cp-song')
+      if (song) {
+        song.querySelectorAll('.cp-blank.cp-auto-break').forEach(el => {
+          el.classList.remove('cp-page-break', 'cp-auto-break')
+        })
+      }
+
       blank.classList.toggle('cp-page-break')
-      if (document.getElementById('auto-size').checked) autoFitSize()
+
+      if (document.getElementById('auto-size').checked) {
+        autoFitSize()
+      }
     })
   })
 }
@@ -590,7 +626,7 @@ document.getElementById('chord-viewer-print').addEventListener('click', async ()
   const cssRes = await fetch('/css/chordpro.css')
   const css = await cssRes.text()
   const win = window.open('', '_blank')
-  win.document.write(`<html><head><style>${css} .cp-song { font-family: ${font}; font-size: ${size}px; } .cp-blank-clickable { cursor: default; } .cp-blank.cp-page-break { border: none; margin: 0; padding: 0; page-break-after: always; break-after: page; } .cp-blank.cp-page-break::after { display: none; }</style></head><body>${content}</body></html>`)
+  win.document.write(`<html><head><style>${css} .cp-song, .cp-two-col { font-family: ${font} !important; font-size: ${size}px !important; } .cp-blank-clickable { cursor: default; } .cp-blank.cp-page-break { border: none; margin: 0; padding: 0; page-break-after: always; break-after: page; } .cp-blank.cp-page-break::after { display: none; } .cp-two-col-row { break-inside: avoid; page-break-inside: avoid; }</style></head><body>${content}</body></html>`)
   win.document.close()
   setTimeout(() => win.print(), 100)
 })
@@ -601,15 +637,15 @@ document.getElementById('print-summary-btn').addEventListener('click', () => {
 
 
 document.getElementById('font-select').addEventListener('change', (e) => {
-  const song = document.querySelector('#chord-viewer-content .cp-song')
-  if (song) song.style.fontFamily = e.target.value
+  const target = document.querySelector('#chord-viewer-content .cp-two-col') || document.querySelector('#chord-viewer-content .cp-song')
+  if (target) target.style.fontFamily = e.target.value
   if (document.getElementById('auto-size').checked) autoFitSize()
 })
 
 document.getElementById('size-slider').addEventListener('input', (e) => {
   document.getElementById('auto-size').checked = false
-  const song = document.querySelector('#chord-viewer-content .cp-song')
-  if (song) song.style.fontSize = e.target.value + 'px'
+  const target = document.querySelector('#chord-viewer-content .cp-two-col') || document.querySelector('#chord-viewer-content .cp-song')
+  if (target) target.style.fontSize = e.target.value + 'px'
   document.getElementById('size-label').textContent = e.target.value + 'px'
 })
 
@@ -617,46 +653,228 @@ document.getElementById('auto-size').addEventListener('change', (e) => {
   if (e.target.checked) autoFitSize()
 })
 
+document.getElementById('two-col').addEventListener('change', () => {
+  applyTwoCol()
+  if (document.getElementById('auto-size').checked) autoFitSize()
+})
+
+function applyTwoCol() {
+  const content = document.getElementById('chord-viewer-content')
+  const twoCol = document.getElementById('two-col').checked
+
+  // Undo existing two-col layout
+  const existing = content.querySelector('.cp-two-col')
+  if (existing) {
+    const origSong = document.createElement('div')
+    origSong.className = 'cp-song'
+    origSong.style.fontFamily = existing.style.fontFamily
+    origSong.style.fontSize = existing.style.fontSize
+
+    // Restore header elements
+    existing.querySelectorAll('.cp-two-col-header > *').forEach(el => {
+      origSong.appendChild(el)
+    })
+
+    // Restore column content with page breaks between sections
+    const cols = [...existing.querySelectorAll('.cp-col')]
+    cols.forEach((col, colIdx) => {
+      ;[...col.children].forEach(el => origSong.appendChild(el))
+      if (colIdx < cols.length - 1) {
+        const brk = document.createElement('div')
+        brk.className = 'cp-blank cp-page-break'
+        origSong.appendChild(brk)
+      }
+    })
+
+    existing.replaceWith(origSong)
+    if (!twoCol) {
+      setupPageBreakClickHandlers()
+      return
+    }
+  }
+
+  const song = content.querySelector('.cp-song')
+  if (!song || !twoCol) return
+
+  // Split at page breaks into sections
+  const children = [...song.children]
+  const pages = []
+  let current = []
+
+  for (const child of children) {
+    if (child.classList.contains('cp-page-break')) {
+      if (current.length) pages.push(current)
+      current = []
+    } else {
+      current.push(child)
+    }
+  }
+  if (current.length) pages.push(current)
+
+  if (pages.length < 2) {
+    alert('Set page breaks first to define where columns split')
+    document.getElementById('two-col').checked = false
+    return
+  }
+
+  // Build two-col wrapper
+  const wrapper = document.createElement('div')
+  wrapper.className = 'cp-two-col'
+  wrapper.style.fontFamily = song.style.fontFamily
+  wrapper.style.fontSize = song.style.fontSize
+
+  // Extract header (title/artist/key)
+  const headerEls = pages[0].filter(el =>
+    el.tagName === 'H1' || (el.tagName === 'P' && (el.classList.contains('cp-artist') || el.classList.contains('cp-meta')))
+  )
+  if (headerEls.length) {
+    const header = document.createElement('div')
+    header.className = 'cp-two-col-header'
+    for (const el of headerEls) header.appendChild(el)
+    wrapper.appendChild(header)
+    pages[0] = pages[0].filter(el => !headerEls.includes(el))
+    if (pages[0].length === 0) pages.shift()
+  }
+
+  // Pair sections into rows
+  for (let i = 0; i < pages.length; i += 2) {
+    const row = document.createElement('div')
+    row.className = 'cp-two-col-row'
+
+    const left = document.createElement('div')
+    left.className = 'cp-col'
+    for (const el of pages[i]) left.appendChild(el)
+    row.appendChild(left)
+
+    if (pages[i + 1]) {
+      const right = document.createElement('div')
+      right.className = 'cp-col'
+      for (const el of pages[i + 1]) right.appendChild(el)
+      row.appendChild(right)
+    }
+
+    wrapper.appendChild(row)
+  }
+
+  song.replaceWith(wrapper)
+}
+
 function autoFitSize() {
+  const twoCol = document.querySelector('#chord-viewer-content .cp-two-col')
+  if (twoCol) {
+    autoFitTwoCol(twoCol)
+    return
+  }
   const song = document.querySelector('#chord-viewer-content .cp-song')
   if (!song) return
 
-  // Find page break positions to determine page contents
-  const pageBreaks = song.querySelectorAll('.cp-page-break')
-  const pageHeight = 980 // A4 printable area approx
+  const PAGE_HEIGHT = 980
+  const TARGET_SIZE = 20
 
-  // Get all top-level children grouped by pages
-  const pages = []
-  let currentPage = []
-  for (const child of song.children) {
-    if (child.classList.contains('cp-page-break')) {
-      if (currentPage.length) pages.push(currentPage)
-      currentPage = []
-    } else {
-      currentPage.push(child)
+  // Clear any previous auto page breaks
+  song.querySelectorAll('.cp-blank.cp-auto-break').forEach(el => {
+    el.classList.remove('cp-page-break', 'cp-auto-break')
+  })
+
+  const sections = [...song.children]
+  const manualBreaks = new Set(
+    sections.filter(el => el.classList.contains('cp-page-break'))
+  )
+
+  // If user has interacted with breaks or manual breaks exist, only adjust font size
+  if (manualBreaksMode || manualBreaks.size > 0) {
+    if (manualBreaks.size === 0) {
+      // User removed all breaks — just fit everything on one page
+      for (let size = TARGET_SIZE; size >= 10; size--) {
+        song.style.fontSize = size + 'px'
+        if (song.scrollHeight <= PAGE_HEIGHT) {
+          document.getElementById('size-slider').value = size
+          document.getElementById('size-label').textContent = size + 'px'
+          return
+        }
+      }
+      song.style.fontSize = '10px'
+      document.getElementById('size-slider').value = 10
+      document.getElementById('size-label').textContent = '10px'
+      return
     }
+
+    for (let size = TARGET_SIZE; size >= 10; size--) {
+      song.style.fontSize = size + 'px'
+
+      let pageUsed = 0
+      let fits = true
+      for (const el of sections) {
+        if (manualBreaks.has(el)) {
+          pageUsed = 0
+          continue
+        }
+        pageUsed += el.getBoundingClientRect().height
+        if (pageUsed > PAGE_HEIGHT) { fits = false; break }
+      }
+
+      if (fits) {
+        document.getElementById('size-slider').value = size
+        document.getElementById('size-label').textContent = size + 'px'
+        return
+      }
+    }
+
+    song.style.fontSize = '10px'
+    document.getElementById('size-slider').value = 10
+    document.getElementById('size-label').textContent = '10px'
+    return
   }
-  if (currentPage.length) pages.push(currentPage)
 
-  // If no page breaks set, treat entire song as one page
-  if (pages.length === 0) pages.push([...song.children])
-
-  // Binary search for best font size that fits each page
-  let bestSize = 12
-  for (let size = 24; size >= 12; size--) {
+  // No manual breaks and no user interaction — auto-paginate
+  let bestSize = TARGET_SIZE
+  for (let size = TARGET_SIZE; size >= 10; size--) {
     song.style.fontSize = size + 'px'
+
+    const heights = sections.map(el => ({
+      el,
+      h: el.getBoundingClientRect().height,
+      isBlank: el.classList.contains('cp-blank'),
+    }))
+
+    let pageUsed = 0
     let fits = true
-    for (const page of pages) {
-      let totalHeight = 0
-      for (const el of page) {
-        totalHeight += el.getBoundingClientRect().height
-      }
-      if (totalHeight > pageHeight) {
-        fits = false
-        break
+    const breakPoints = []
+
+    for (let i = 0; i < heights.length; i++) {
+      const { el, h, isBlank } = heights[i]
+
+      if (pageUsed + h <= PAGE_HEIGHT) {
+        pageUsed += h
+      } else if (isBlank && pageUsed > 0) {
+        breakPoints.push(el)
+        pageUsed = 0
+      } else if (pageUsed === 0) {
+        pageUsed = h
+      } else {
+        let broke = false
+        for (let j = i - 1; j >= 0; j--) {
+          if (heights[j].isBlank && !breakPoints.includes(heights[j].el)) {
+            breakPoints.push(heights[j].el)
+            pageUsed = 0
+            for (let k = j + 1; k <= i; k++) {
+              pageUsed += heights[k].h
+            }
+            broke = true
+            break
+          }
+        }
+        if (!broke) {
+          fits = false
+          break
+        }
       }
     }
+
     if (fits) {
+      breakPoints.forEach(el => {
+        el.classList.add('cp-page-break', 'cp-auto-break')
+      })
       bestSize = size
       break
     }
@@ -665,6 +883,31 @@ function autoFitSize() {
   song.style.fontSize = bestSize + 'px'
   document.getElementById('size-slider').value = bestSize
   document.getElementById('size-label').textContent = bestSize + 'px'
+}
+
+function autoFitTwoCol(wrapper) {
+  const PAGE_HEIGHT = 980
+  const TARGET_SIZE = 20
+  const rows = wrapper.querySelectorAll('.cp-two-col-row')
+
+  for (let size = TARGET_SIZE; size >= 10; size--) {
+    wrapper.style.fontSize = size + 'px'
+    let fits = true
+    for (const row of rows) {
+      if (row.getBoundingClientRect().height > PAGE_HEIGHT) {
+        fits = false
+        break
+      }
+    }
+    if (fits) {
+      document.getElementById('size-slider').value = size
+      document.getElementById('size-label').textContent = size + 'px'
+      return
+    }
+  }
+  wrapper.style.fontSize = '10px'
+  document.getElementById('size-slider').value = 10
+  document.getElementById('size-label').textContent = '10px'
 }
 
 // Archive button

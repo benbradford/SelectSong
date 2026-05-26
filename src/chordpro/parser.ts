@@ -1,6 +1,6 @@
-const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+const NOTES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B']
 const FLAT_TO_SHARP: Record<string, string> = {
-  'Db': 'C#', 'Eb': 'D#', 'Fb': 'E', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#', 'Cb': 'B',
+  'Db': 'C#', 'D#': 'Eb', 'Fb': 'E', 'Gb': 'F#', 'Ab': 'G#', 'A#': 'Bb', 'Cb': 'B',
 }
 
 export interface ChordProLine {
@@ -113,6 +113,42 @@ export function semitonesFromTo(from: string, to: string): number {
   const toIdx = noteIndex(to)
   if (fromIdx === -1 || toIdx === -1) return 0
   return (toIdx - fromIdx + 12) % 12
+}
+
+export function renderToChordPro(song: ChordProSong): string {
+  const output: string[] = []
+
+  for (const line of song.lines) {
+    if (line.type === 'empty') {
+      output.push('')
+    } else if (line.type === 'directive') {
+      const d = line.directive!
+      if (d.name === 'key' && song.key) {
+        output.push(`{key: ${song.key}}`)
+      } else {
+        output.push(`{${d.name}${d.value ? ': ' + d.value : ''}}`)
+      }
+    } else if (line.type === 'comment') {
+      output.push(`# ${line.content}`)
+    } else if (line.type === 'chord-lyric') {
+      if (!line.chords || line.chords.length === 0) {
+        output.push(line.lyrics || '')
+      } else {
+        let result = ''
+        let lastPos = 0
+        const lyrics = line.lyrics || ''
+        for (const c of line.chords) {
+          result += lyrics.slice(lastPos, c.position)
+          result += `[${c.chord}]`
+          lastPos = c.position
+        }
+        result += lyrics.slice(lastPos)
+        output.push(result)
+      }
+    }
+  }
+
+  return output.join('\n')
 }
 
 export function renderToText(song: ChordProSong): string {

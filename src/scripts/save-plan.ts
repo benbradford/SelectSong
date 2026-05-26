@@ -42,7 +42,12 @@ console.log(`  Theme: ${values.theme}`)
 console.log(`  Passage: ${values.passage}`)
 console.log(`  Songs:`)
 
-const posLabels: Record<number, string> = { 1: 'Intro', 2: 'Pre-sermon 1', 3: 'Pre-sermon 2', 4: 'Pre-sermon 3', 5: 'Outro' }
+const COMMUNION_OFFSET = 1000
+function posLabel(pos: number): string {
+  if (pos === 0) return 'Pre-service'
+  if (pos >= COMMUNION_OFFSET) return `Communion ${pos - COMMUNION_OFFSET + 1}`
+  return `Song ${pos}`
+}
 
 const savedSongs = db.prepare(`
   SELECT pss.position, pss.key, s.name, s.chordpro_file, s.sheet_pdf, s.songselect_url
@@ -55,7 +60,7 @@ const savedSongs = db.prepare(`
 const missing: string[] = []
 for (const s of savedSongs) {
   const key = s.key ? ` (key: ${s.key})` : ''
-  console.log(`    ${posLabels[s.position] || s.position}. ${s.name}${key}`)
+  console.log(`    ${posLabel(s.position)}. ${s.name}${key}`)
   if (!s.chordpro_file && !s.sheet_pdf) {
     missing.push(s.name + (s.songselect_url ? ` — ${s.songselect_url}` : ''))
   }
@@ -68,4 +73,5 @@ if (missing.length > 0) {
   }
 }
 
-console.log(`\nView at: http://localhost:3000/plan.html`)
+const port = process.env.PORT || 3000
+console.log(`\nView at: http://localhost:${port}/plan.html`)

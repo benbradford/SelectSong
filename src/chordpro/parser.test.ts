@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { parseChordPro, transposeChord, transposeSong, semitonesFromTo } from './parser.js'
+import { parseChordPro, transposeChord, transposeSong, semitonesFromTo, renderToChordPro } from './parser.js'
 
 describe('transposeChord', () => {
   it('transposes simple chords up', () => {
     expect(transposeChord('C', 2)).toBe('D')
-    expect(transposeChord('G', 3)).toBe('A#')
+    expect(transposeChord('G', 3)).toBe('Bb')
     expect(transposeChord('A', 2)).toBe('B')
   })
 
@@ -20,12 +20,14 @@ describe('transposeChord', () => {
 
   it('handles sharps', () => {
     expect(transposeChord('F#', 1)).toBe('G')
-    expect(transposeChord('C#m', 2)).toBe('D#m')
+    expect(transposeChord('C#m', 2)).toBe('Ebm')
   })
 
-  it('normalises flats to sharps', () => {
-    expect(transposeChord('Bb', 0)).toBe('A#')
-    expect(transposeChord('Eb', 0)).toBe('D#')
+  it('normalises enharmonic equivalents', () => {
+    expect(transposeChord('Bb', 0)).toBe('Bb')
+    expect(transposeChord('Eb', 0)).toBe('Eb')
+    expect(transposeChord('A#', 0)).toBe('Bb')
+    expect(transposeChord('D#', 0)).toBe('Eb')
   })
 
   it('transposes down (negative semitones via modulo)', () => {
@@ -104,5 +106,30 @@ describe('transposeSong', () => {
     expect(transposed.lines[0].lyrics).toBe('Hello world')
     expect(transposed.lines[0].chords![0].chord).toBe('F')
     expect(transposed.lines[0].chords![1].chord).toBe('Dm')
+  })
+})
+
+describe('renderToChordPro', () => {
+  it('round-trips a simple song', () => {
+    const source = `{title: Amazing Grace}
+{key: G}
+
+{comment: Verse 1}
+[G]Amazing [C]grace how [G]sweet`
+    const song = parseChordPro(source)
+    const output = renderToChordPro(song)
+    expect(output).toContain('{title: Amazing Grace}')
+    expect(output).toContain('{key: G}')
+    expect(output).toContain('[G]Amazing [C]grace how [G]sweet')
+  })
+
+  it('renders transposed song in new key', () => {
+    const source = `{key: C}
+[C]Amazing [G]grace`
+    const song = parseChordPro(source)
+    const transposed = transposeSong(song, 2)
+    const output = renderToChordPro(transposed)
+    expect(output).toContain('{key: D}')
+    expect(output).toContain('[D]Amazing [A]grace')
   })
 })

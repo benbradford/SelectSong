@@ -74,7 +74,7 @@ On the Plan page, songs missing music files show a green "Upload" button. Click 
 npm run dev
 ```
 
-Open http://localhost:3000
+Open http://localhost:3000 (or whatever `PORT` is set to in `.env`)
 
 Pages:
 - **Songs** — browse the full catalogue with play history

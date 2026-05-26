@@ -237,6 +237,27 @@ tr:hover { background: #f0f7ff; }
   margin-right: 0.5rem;
 }
 .plan-song-name { font-weight: 500; }
+.plan-song-notes {
+  display: block;
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.15rem;
+}
+.plan-song-notes-input {
+  display: block;
+  width: 100%;
+  font-size: 0.8rem;
+  color: #555;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  background: transparent;
+  padding: 0.2rem 0;
+  margin-top: 0.2rem;
+  outline: none;
+}
+.plan-song-notes-input:focus {
+  border-bottom-color: #4a90d9;
+}
 
 .plan-song-controls {
   display: flex;
@@ -353,7 +374,12 @@ tr:hover { background: #f0f7ff; }
 }
 
 @media print {
-  header, nav, #controls, #search, #suggest-form, #loading, .plan-actions, .plan-song-controls, .plan-song-drag, #chord-viewer { display: none; }
+  header, nav, #controls, #search, #suggest-form, #loading, .plan-actions, .plan-song-controls, .plan-song-drag, #chord-viewer, .add-song-row, #plan-select, .plan-selector, #archives-section { display: none; }
   .chord-sheet { border: none; padding: 0; font-size: 11pt; }
   .plan-song-card { border: none; padding: 0.3rem 0; margin: 0; box-shadow: none; }
+  .plan-song-notes-input {
+    border: none;
+    font-style: italic;
+    color: #555;
+  }
 }

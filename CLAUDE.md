@@ -21,7 +21,7 @@ Given a theme and bible passage, suggests 5 songs from the church's approved son
 
 ```bash
 npm install          # install deps
-npm run dev          # start dev server (port 3000)
+npm run dev          # start dev server (default port 3000, override with PORT env var)
 npm run db:seed      # import songlist.csv and ledger.csv into SQLite
 npm run db:migrate   # run Drizzle migrations
 npm run sync         # pull latest data from Google Sheets into SQLite
@@ -69,12 +69,12 @@ When the user asks for song suggestions:
    npx tsx src/scripts/save-plan.ts --date YYYY-MM-DD --theme "..." --passage "..." --leader "..." --songs '[{"songId":N,"position":1,"key":"C"},...]'
    ```
 6. **Report** which songs lack chordpro/PDF files — user will download from SongSelect
-7. User views the plan at `http://localhost:3000/plan.html`
+7. User views the plan at `http://localhost:{PORT}/plan.html` (default port 3000)
 
 ### Song matching notes
 - The `song_aliases` table maps ledger names to songlist names (e.g. "Waymaker" → "Way Maker", "Holy Spirit" → "Holy Spirit, living breath")
 - Songs with `excluded = 1` must never be suggested (check `excluded_reason` for why)
-- Position numbers: 1=Intro, 2=Pre-sermon 1, 3=Pre-sermon 2, 4=Pre-sermon 3, 5=Outro
+- Position numbers: 0=Pre-service, 1+ for main set (1=Song 1, 2=Song 2, etc.), 1000+ for communion (1000=Communion 1, 1001=Communion 2, etc.)
 
 ### Draft email to vicar
 After finalising the set, output a brief email draft explaining the song choices. Format:

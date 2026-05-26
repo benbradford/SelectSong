@@ -1,0 +1,60 @@
+{title: Hymn Of Heaven}
+{artist: Phil Wickham, Bill Johnson, Brian Johnson, Chris Davenport}
+{subtitle: (based on the recording by Phil Wickham)}
+{key: C}
+{tempo: 71} 
+{time: 4/4}
+{ccli_license: 163300}
+{ccli: 7168994}
+{copyright: Phil Wickham Music | Simply Global Songs | CDavs Music | Songs For TIM | Bethel Music Publishing | Brian and Jenn Publishing}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|] [C]   [C/E]  [F]      [|] [Am]    [G]     [|] 
+[|] [C]   [C/E]  [Am]     [|] [Am]    [G]
+
+{comment: Verse 1}
+How I [C]long to [Csus]breathe the air of [C]Heaven
+Where pain is [Am7]gone and [F2(no3)]mercy fills the [G(4)]streets
+To look up - [C]on the [Csus]one who bled to [C]save [G/B]me   [Am]
+And walk with [F]Him for [G]all eterni - [C]ty    [Csus]    [C]
+
+{comment: Chorus 1}
+There will [(C/E)]be a [F2]day when [Gsus]all will bow be - [C]fore Him
+There will be a [F2]day when [Am7]death will be no [G(4)] more
+Standing [C/E]face to [F2]face with [G(4)]He who died and [C]rose [C/E]a -  [F2]gain
+[F2]Holy, [G(4)]holy is the [C]Lord
+
+{comment: Turnaround}
+[|] [C]   [C/E]  [F]      [|] [Am]    [G]
+
+{comment: Verse 2}
+And ev'ry [C]prayer, we [Csus]prayed in desper - [C]ation
+The [G/B]songs of [Am]faith we [F]sang through doubt and [Gsus]fear   [G]
+In the [C/E]end, we’ll [F]see that it was [C]worth [G/B]it   [Am]
+When He re - [F]turns to [G]wipe away our [C]  tears   [Csus]    [C]
+
+{comment: Verse 3}
+And on that [C]day we [Csus]join the resur - [C]rection
+And stand be - [Am]side the [F]heroes of the [Gsus]faith    [G]
+With one [C/E]voice, a [F]thousand gener - [C]a - [G/B]tions   [Am]   [G]
+Sing [F]worthy [C/E]is the [G]Lamb who was [Am]slain    [C/E]
+For - [F]ever [Gsus]He  [G]shall reign [C]     [Csus]  [C]
+
+{comment: Chorus 2}
+So, let it [C/E]be to - [F2]day we [G]shout the hymn of [C]Heaven
+With angels [C/E]and the [F2]Saints we [Am7]raise a mighty [G(4)]roar
+Glory [C/E]to our [F2]God who [G]gave us life be - [C]yond [C/E]the [F]grave
+[F]Holy, [G]holy is the [Am]Lord    [C/E]    
+[F]Holy, [G]holy is the [Am]Lord    [C/E]
+[F]Holy, [G]holy is the [C]Lord  
+
+{comment: Outro}
+[|] [C]    [F/C]    [|] [C]    [Gsus/C]   [|] [C]            [|] 
+
+
+CCLI Song # 7168994
+© Phil Wickham Music | Simply Global Songs | CDavs Music | Songs For TIM | Bethel Music Publishing | Brian and Jenn Publishing
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction Licence.  Please report all copies.
+CCLI Licence No. 163300

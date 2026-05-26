@@ -40,7 +40,8 @@
       "WebFetch(domain:www.reddit.com)",
       "WebFetch(domain:stackoverflow.com)",
       "Bash(gh search *)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(PORT=4000 npm run *)"
     ]
   }
 }
