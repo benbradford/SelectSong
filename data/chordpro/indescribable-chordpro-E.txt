@@ -1,0 +1,60 @@
+{title: Indescribable}
+{artist: Jesse Reeves, Laura Story}
+{key: E}
+{time: 6/8}
+{tempo: 60}
+{ccli_license: 163300}
+{ccli: 4403076}
+{copyright: 2004 Laura Stories | sixsteps Music | worshiptogether.com songs}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[C#m] From the highest of heights to the [B/D#]depths of the [E] sea
+[F#m7] Creation’s revealing Your [A/E]majes  [Dmaj7]- ty
+[C#m] From the colors of Fall to the [B/D#]fragrance of [E] Spring
+[F#m7] Ev’ry creature unique in the [A/E]song that it [Dmaj7] sings
+[A/C#]All ex - [B/D#]claiming
+
+{comment: Chorus 1}
+[E] Indescribable  [B] uncontainable
+[A2]You placed the stars in the sky and You know them by [C#m] name
+[E/G#]You are amazing  [A] God
+[E] All powerful  [B] untamable
+[A2]Awestruck we fall to our knees as we humbly pro [C#m]- claim
+(1.) [E/G#]You are amaz [A2]- ing   [B/A]God   [A2]       [B/A]   [A2]   
+(2.) [E/G#]You are amaz [A2]- ing God (To Interlude 1a)
+
+{comment: Verse 2}
+[C#m] Who has told ev’ry lightning bolt [B/D#]where it should [E] go
+[F#m7] Or seen heavenly storehouses [A/E]laden with [Dmaj7] snow
+[C#m] Who imagined the sun and gives [B/D#]source to its [E] light
+[F#m7] Yet conceals it to bring us the [A/E]coolness of [Dmaj7] night
+[A/C#] None can [B/D#]fathom
+
+{comment: Interlude 1a}
+(You are amazing God)
+[|] [F#m7]         [|] [E]          [|] [Dmaj7]      [|] [Dmaj7]      [|]
+[|] [G]          [|] [E]          [|] [G/F]       [|] [G/F]       [|]
+
+{comment: Chorus 2}
+[E] Indescribable  [B] uncontainable
+[A2]You placed the stars in the sky and You know them by [C#m] name
+[E/G#]You are amazing [A] God
+[E] Incomparable  [B] unchangeable
+[A2]You see the depths of my heart and You love me the [C#m] same
+[E/G#]You are amaz [A2]- ing   [B/A]God   [A2]
+
+{comment: Interlude 1b}
+(You are amazing God)
+[||:] [A2]    [B/A]    [|] [A2]         [|] [A2]    [B/A]    [|] [A2]         [:||]
+
+{comment: Ending}
+[A2]You see the depths of my heart and You love me the [C#m7]same
+[Bsus]You are amaz [A2]- ing God           [(E)]   (Last time)
+
+
+CCLI Song # 4403076
+© 2004 Laura Stories | sixsteps Music | worshiptogether.com songs
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction Licence.  Please report all copies.
+CCLI Licence No. 163300

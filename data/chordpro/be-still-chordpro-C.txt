@@ -1,0 +1,46 @@
+{title: Be Still}
+{artist: David J. Evans}
+{key: C}
+{tempo: 82} 
+{time: 4/4}
+{ccli_license: 163300}
+{ccli: 120824}
+{copyright: 1986 Thankyou Music Ltd}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[C]    Be still, for the [Em7]presence of the [Am]Lord 
+The [Dm7]Holy One is [G]here 
+[C]    Come, bow be - [Em7]fore Him [Am]now 
+With [Dm7]reverence and [Gsus]fear [G]
+[F]    In [G/F]Him no [C/E]sin is found 
+[F]    We [G/F]stand on [C/E]holy ground 
+[F]    Be [G]still, for the [Em7]presence of the [Am]Lord 
+The [Dm7]Holy [Gsus]One [G] is [C]here 
+
+{comment: Verse 2}
+[C]    Be still, for the [Em7]glory of the [Am]Lord 
+Is [Dm7]shining all a - [G]round 
+[C]    He burns with [Em7]holy [Am]fire 
+With [Dm7]splendor He is [Gsus]crowned [G]
+[F]    How [G/F]awesome [C/E]is the sight 
+[F]    Our [G/F]radiant [C/E]King of light! 
+[F]    Be [G]still, for the [Em7]glory of the [Am]Lord 
+Is [Dm7]shining [Gsus]all [G] a - [C]round 
+
+{comment: Verse 3}
+[C]    Be still, for the [Em7]power of the [Am]Lord 
+Is [Dm7]moving in this [G]place 
+[C]    He comes to [Em7]cleanse and [Am]heal 
+To [Dm7]minister His [Gsus]grace [G]
+[F]    No [G/F]work too [C/E]hard for Him 
+[F]    In [G/F]faith re - [C/E]ceive from Him 
+[F]    Be [G]still, for the [Em7]power of the [Am]Lord 
+Is [Dm7]moving [Gsus]in [G] this [C]place 
+
+
+CCLI Song # 120824
+© 1986 Thankyou Music Ltd
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction Licence.  Please report all copies.
+CCLI Licence No. 163300

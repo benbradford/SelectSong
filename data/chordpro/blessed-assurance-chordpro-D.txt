@@ -1,0 +1,39 @@
+{title: Blessed Assurance}
+{artist: Words by Fanny Jane Crosby, Music by Phoebe Palmer Knapp}
+{key: D}
+{time: 9/8 }
+{tempo: 66}
+{ccli_license: 163300}
+{ccli: 22324}
+{copyright: Words: Public Domain | Music: Public Domain}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[A]Blessed as - [D]surance, [G/D]Jesus is [D]mine
+O what a [D]fore - [A/E]taste of [E7]glory di - [A]vine
+Heir of sal - [D]vation, [G/D]purchase of [D]God
+Born of His  [G6]Spirit,   [A7]washed in His [D]blood
+
+{comment: Chorus}
+This is my [D]story,    [G]this is my [D]song
+Praising my [G]Sav -  [D/F#]ior     [E]all the day [A]long
+[A7]This is my [D]story,   [G/D]this is my [D]song
+Praising my [G6]Savior   [A7]all the day [D]long
+
+{comment: Verse 2}
+[A]Perfect sub - [D]mission, [G/D]perfect de - [D]light
+Visions of [D]rap - [A/E]ture now [E7]burst on my [A]sight
+Angels de - [D]scending [G/D]bring from a - [D]bove
+Echoes of [G6]mercy,   [A7]whispers of [D]love
+
+{comment: Verse 3}
+[A]Perfect sub - [D]mission, [G/D]all is at [D]rest
+I in my [D]Sav - [A/E]ior am [E7]happy and [A]blest
+Watching and [D]waiting, [G/D]looking a - [D]bove
+Filled with His [G6]goodness, [A7]lost in His [D]love
+
+
+CCLI Song # 22324
+© Words: Public Domain | Music: Public Domain
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+CCLI Licence No. 163300

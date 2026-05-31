@@ -62,13 +62,18 @@ When the user asks for song suggestions:
    npx tsx src/scripts/get-candidates.ts 2026-05-31
    ```
    Pass the target date as an argument. This outputs all songs sorted by days since last played, including any already-planned services that haven't hit the ledger yet.
-3. **Consider**: thematic fit, recency (prefer 6+ weeks since last played), hymn balance (1-2 per set), energy flow
+3. **Consider**: thematic fit, recency (prefer 6+ weeks since last played), hymn balance (1-2 per set), energy flow. Ask the user what they played today/recently if the ledger may not be up-to-date yet, so you don't suggest songs they just did.
 4. **Present** ~5 recommendations + alternatives with ratings, positions, rationale
-5. **After agreement**, save the plan:
+5. **After agreement**, save the plan **once** (wait until the full set is confirmed — main songs, communion, and pre-service — before calling save-plan). Each call creates a new row, so avoid saving multiple times during iteration:
    ```bash
    npx tsx src/scripts/save-plan.ts --date YYYY-MM-DD --theme "..." --passage "..." --leader "..." --songs '[{"songId":N,"position":1,"key":"C"},...]'
    ```
-6. **Report** which songs lack chordpro/PDF files — user will download from SongSelect
+   If you've already saved and need to update, use the PATCH endpoint instead:
+   ```bash
+   curl -X PATCH http://localhost:4000/api/plan/{id}/songs -H 'Content-Type: application/json' -d '{"songs":[...]}'
+   ```
+6. **Include justification notes** in the `notes` field for each main set song (positions 1-5) when saving/patching — these show in the plan.html UI
+7. **Report** which songs lack chordpro/PDF files — user will download from SongSelect
 7. User views the plan at `http://localhost:{PORT}/plan.html` (default port 3000)
 
 ### Song matching notes
@@ -103,9 +108,9 @@ Ben
 Keep reasoning to ~10 words per song. Focus on thematic connection to the passage.
 
 ### Adding new music files
-When user downloads from SongSelect:
-- ChordPro `.txt` files go in `data/chordpro/`
-- Lead sheet PDFs go in `data/sheets/`
+User places SongSelect downloads in the project's `downloads/` directory. When processing:
+- Copy ChordPro `.txt` files to `data/chordpro/`
+- Copy lead sheet PDFs to `data/sheets/`
 - Update the DB: `UPDATE songs SET chordpro_file='filename.txt', sheet_pdf='filename.pdf', songselect_url='https://...', default_key='C' WHERE id=N`
 
 ## Project conventions

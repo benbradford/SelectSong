@@ -41,7 +41,9 @@
       "WebFetch(domain:stackoverflow.com)",
       "Bash(gh search *)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(PORT=4000 npm run *)"
+      "Bash(PORT=4000 npm run *)",
+      "Bash(cp /Users/bebradfo/code/selectsong/downloads/*.txt /Users/bebradfo/code/selectsong/data/chordpro/)",
+      "Bash(cp /Users/bebradfo/code/selectsong/downloads/*.pdf /Users/bebradfo/code/selectsong/data/sheets/)"
     ]
   }
 }
