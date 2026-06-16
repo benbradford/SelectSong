@@ -1,6 +1,9 @@
 import { Router } from 'express'
 import Database from 'better-sqlite3'
 import { resolve } from 'path'
+import { existsSync, mkdirSync, copyFileSync, writeFileSync, readFileSync } from 'fs'
+import { parseChordPro, transposeSong, semitonesFromTo, renderToText } from '../chordpro/parser.js'
+import { renderToHtml } from '../chordpro/html-renderer.js'
 
 export const planRouter = Router()
 
@@ -9,6 +12,13 @@ const dbPath = resolve(import.meta.dirname, '../../data/selectsong.db')
 function getDb() {
   const db = new Database(dbPath)
   db.pragma('journal_mode = WAL')
+  db.exec(`CREATE TABLE IF NOT EXISTS song_display_prefs (
+    song_id INTEGER PRIMARY KEY REFERENCES songs(id),
+    font TEXT,
+    font_size INTEGER,
+    two_col INTEGER DEFAULT 0,
+    manual_breaks TEXT
+  )`)
   return db
 }
 
@@ -93,6 +103,38 @@ planRouter.get('/latest', (_req, res) => {
   res.json({ ...service, songs })
 })
 
+planRouter.get('/display-prefs/:songId', (req, res) => {
+  const db = getDb()
+  const prefs = db.prepare(
+    'SELECT * FROM song_display_prefs WHERE song_id = ?'
+  ).get(Number(req.params.songId)) as any
+  db.close()
+  res.json(prefs || null)
+})
+
+planRouter.put('/display-prefs/:songId', (req, res) => {
+  const songId = Number(req.params.songId)
+  const { font, fontSize, twoCol, manualBreaks } = req.body as {
+    font?: string
+    fontSize?: number
+    twoCol?: boolean
+    manualBreaks?: number[]
+  }
+
+  const db = getDb()
+  db.prepare(`
+    INSERT INTO song_display_prefs (song_id, font, font_size, two_col, manual_breaks)
+    VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(song_id) DO UPDATE SET
+      font = excluded.font,
+      font_size = excluded.font_size,
+      two_col = excluded.two_col,
+      manual_breaks = excluded.manual_breaks
+  `).run(songId, font || null, fontSize || null, twoCol ? 1 : 0, manualBreaks ? JSON.stringify(manualBreaks) : null)
+  db.close()
+  res.json({ saved: true })
+})
+
 planRouter.get('/:id', (req, res) => {
   const db = getDb()
   const service = db.prepare(
@@ -169,4 +211,87 @@ planRouter.patch('/:id/songs', (req, res) => {
 
   db.close()
   res.json({ songs: updated })
+})
+
+planRouter.post('/:id/export', (req, res) => {
+  const db = getDb()
+  const service = db.prepare(
+    'SELECT * FROM planned_services WHERE id = ?'
+  ).get(Number(req.params.id)) as any
+
+  if (!service) {
+    db.close()
+    return res.status(404).json({ error: 'Not found' })
+  }
+
+  const songs = db.prepare(`
+    SELECT pss.*, s.name, s.chordpro_file, s.sheet_pdf, s.default_key
+    FROM planned_service_songs pss
+    JOIN songs s ON s.id = pss.song_id
+    WHERE pss.service_id = ?
+    ORDER BY pss.position
+  `).all(service.id) as any[]
+
+  const exportBase = resolve(import.meta.dirname, '../../exports', service.date)
+  mkdirSync(exportBase, { recursive: true })
+
+  const chordproDir = resolve(import.meta.dirname, '../../data/chordpro')
+  const sheetsDir = resolve(import.meta.dirname, '../../data/sheets')
+  const cssPath = resolve(import.meta.dirname, '../../public/css/chordpro.css')
+  const css = existsSync(cssPath) ? readFileSync(cssPath, 'utf-8') : ''
+  const exported: { name: string; chordpro: boolean; pdf: boolean }[] = []
+
+  for (const song of songs) {
+    const safeName = song.name.replace(/[/\\?%*:|"<>]/g, '-')
+    const songDir = resolve(exportBase, safeName)
+    mkdirSync(songDir, { recursive: true })
+
+    let hasChordpro = false
+    let hasPdf = false
+
+    if (song.chordpro_file) {
+      const cpPath = resolve(chordproDir, song.chordpro_file)
+      if (existsSync(cpPath)) {
+        const source = readFileSync(cpPath, 'utf-8')
+        let parsed = parseChordPro(source)
+        const targetKey = song.key || song.default_key
+        if (targetKey && parsed.key) {
+          const semitones = semitonesFromTo(parsed.key, targetKey)
+          if (semitones !== 0) parsed = transposeSong(parsed, semitones)
+        }
+
+        const text = renderToText(parsed)
+        writeFileSync(resolve(songDir, `${safeName}.txt`), text, 'utf-8')
+
+        const prefs = db.prepare(
+          'SELECT * FROM song_display_prefs WHERE song_id = ?'
+        ).get(song.song_id) as any
+
+        const html = renderToHtml(parsed)
+        const font = prefs?.font || "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        const fontSize = prefs?.font_size || 18
+        const styledHtml = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>${safeName}</title>
+<style>${css}
+.cp-song { font-family: ${font}; font-size: ${fontSize}px; }
+@media print { .cp-blank.cp-page-break { page-break-after: always; break-after: page; } }
+</style></head><body>${html}</body></html>`
+        writeFileSync(resolve(songDir, `${safeName}.html`), styledHtml, 'utf-8')
+        hasChordpro = true
+      }
+    }
+
+    if (song.sheet_pdf) {
+      const pdfPath = resolve(sheetsDir, song.sheet_pdf)
+      if (existsSync(pdfPath)) {
+        copyFileSync(pdfPath, resolve(songDir, song.sheet_pdf))
+        hasPdf = true
+      }
+    }
+
+    exported.push({ name: song.name, chordpro: hasChordpro, pdf: hasPdf })
+  }
+
+  db.close()
+  res.json({ path: `exports/${service.date}`, songs: exported })
 })

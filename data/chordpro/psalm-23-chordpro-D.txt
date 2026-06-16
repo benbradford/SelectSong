@@ -1,0 +1,46 @@
+{title: Psalm 23}
+{artist: Stuart Townend}
+{key: D}
+{tempo: 64}
+{time: 4/4 }
+{ccli_license: 163300}
+{ccli: 1585970}
+{copyright: 1996 Thankyou Music Ltd}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+The Lord's my [D]Shepherd,  [Asus]I'll not [D]want 
+He makes me lie in [G/B]pastures [Asus]green     [A]
+He leads me [G]by the [Asus]still,    [A7]still    [D]wa - [G/B]ters 
+His [Em7]goodness re - [Asus]stores    [A7]my    [D]soul 
+
+{comment: Chorus}
+And I will [D]trust in [Asus]You a - [D]lone 
+And I will trust in [G/B]You a - [Asus]lone     [A]
+For Your [G]endless [Asus]mer -  [A7]cy    [D]follows [G/B]me 
+Your [Em7]goodness will [Asus]lead    [A7]me    [D]home 
+
+{comment: Descant}
+[D]I will [Asus]trust, I will [D]trust in You 
+I will [G/B]trust, I will [Asus]trust in [A]You 
+[G]Endless   [Asus]mer -  [A7]cy    [D]follows [G/B]me 
+[Em7]Goodness will [Asus]lead    [A7]me    [D]home 
+
+{comment: Verse 2}
+He guides my [D]ways in [Asus]righteous - [D]ness 
+And He anoints my [G/B]head with [Asus]oil     [A]
+And my [G]cup, it [Asus]o -  [A7]ver -  [D]flows with [G/B]joy 
+I [Em7]feast on His [Asus]pure    [A7]de -  [D]lights 
+
+{comment: Verse 3}
+And though I [D]walk the [Asus]darkest  [D]path 
+I will not fear the [G/B]evil    [Asus]one     [A]
+For You are [G]with me [Asus]and    [A7]Your   [D]rod and [G/B]staff 
+Are the [Em7]comfort I [Asus]need    [A7]to    [D]know 
+
+
+CCLI Song # 1585970
+© 1996 Thankyou Music Ltd
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction Licence.  Please report all copies.
+CCLI Licence No. 163300

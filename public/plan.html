@@ -36,10 +36,20 @@
 
       <div class="plan-actions">
         <button class="btn" id="print-summary-btn">Print Summary</button>
+        <button class="btn" id="email-draft-btn">Email Draft</button>
+        <button class="btn" id="export-all-btn">Export All</button>
         <button class="btn btn-outline" id="archive-btn">Archive</button>
       </div>
 
       <div id="song-list"></div>
+
+      <div id="email-draft" class="hidden">
+        <div class="email-draft-header">
+          <h3>Email Draft</h3>
+          <button class="btn btn-small" id="copy-email-btn">Copy to Clipboard</button>
+        </div>
+        <pre id="email-draft-content"></pre>
+      </div>
 
       <div id="chord-viewer" class="hidden">
         <div class="chord-viewer-header">

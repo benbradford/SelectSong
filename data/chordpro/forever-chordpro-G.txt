@@ -1,0 +1,43 @@
+{title: Forever}
+{artist: Chris Tomlin}
+{key: G}
+{time: 4/4}
+{tempo: 120}
+{ccli_license: 163300}
+{ccli: 3148428}
+{copyright: 2001 Rising Springs Music | Vamos Publishing | worshiptogether.com songs}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+Give [G]thanks to the Lord our God and King
+His [G]love endures forever
+[C]For He is good He is above all things
+His [C]love endures for - [G]ever
+Sing [D]praise,         sing [C2/E]praise
+
+{comment: Verse 2}
+[G]   With a mighty hand and outstretched arm
+His [G]love endures forever
+[C]   For the life that's been reborn
+His [C]love endures for - [G]ever
+Sing [D]praise,         sing [C2/E]praise
+
+{comment: Pre-Chorus}
+Sing [D]praise,         sing [C2/E]praise
+
+{comment: Chorus}
+For - [G]ever God is faithful, for - [Em7]ever God is strong
+For - [D]ever God is with us, for - [C]ever,         for - [G]ever
+
+{comment: Verse 3}
+[G]   From the rising to the setting sun
+His [G]love endures forever
+And by the [C]grace of God we will carry on
+His [C]love endures for - [G]ever
+Sing [D]praise,         sing [C2/E]praise   (To Pre-Chorus)
+
+CCLI Song # 3148428
+© 2001 Rising Springs Music | Vamos Publishing | worshiptogether.com songs
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction Licence.  Please report all copies.
+CCLI Licence No. 163300

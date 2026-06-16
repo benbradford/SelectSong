@@ -3,3 +3,4 @@ dist/
 data/selectsong.db
 .env
 secrets/
+exports/

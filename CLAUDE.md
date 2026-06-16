@@ -66,8 +66,9 @@ When the user asks for song suggestions:
 4. **Present** ~5 recommendations + alternatives with ratings, positions, rationale
 5. **After agreement**, save the plan **once** (wait until the full set is confirmed — main songs, communion, and pre-service — before calling save-plan). Each call creates a new row, so avoid saving multiple times during iteration:
    ```bash
-   npx tsx src/scripts/save-plan.ts --date YYYY-MM-DD --theme "..." --passage "..." --leader "..." --songs '[{"songId":N,"position":1,"key":"C"},...]'
+   npx tsx src/scripts/save-plan.ts --date YYYY-MM-DD --theme "..." --passage "..." --leader "..." --songs '[{"songId":N,"position":1,"key":"C","notes":"Thematic justification for this song"},...]'
    ```
+   The `notes` field is required for main set songs (positions 1-5) — it contains a short justification explaining why this song fits the theme/passage. Without it the plan.html UI shows empty justification fields.
    If you've already saved and need to update, use the PATCH endpoint instead:
    ```bash
    curl -X PATCH http://localhost:4000/api/plan/{id}/songs -H 'Content-Type: application/json' -d '{"songs":[...]}'

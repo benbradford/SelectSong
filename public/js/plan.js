@@ -1,6 +1,8 @@
 let currentPlan = null
 let draggedEl = null
 let manualBreaksMode = false
+let currentViewSongId = null
+let savedBreakIndices = []
 
 const COMMUNION_OFFSET = 1000
 
@@ -487,6 +489,8 @@ async function handleViewChords(e) {
   const params = new URLSearchParams({ format: 'html' })
   if (key) params.set('key', key)
 
+  currentViewSongId = Number(card.dataset.songId)
+
   const res = await fetch(`/api/chordpro/${encodeURIComponent(file)}?${params}`)
   const html = await res.text()
 
@@ -497,20 +501,93 @@ async function handleViewChords(e) {
   document.getElementById('chord-viewer-content').innerHTML = html
   viewer.classList.remove('hidden')
 
-  // Apply current font
-  const font = document.getElementById('font-select').value
+  // Load saved display prefs for this song
+  const prefsRes = await fetch(`/api/plan/display-prefs/${currentViewSongId}`)
+  const prefs = await prefsRes.json()
+
+  const fontSelect = document.getElementById('font-select')
+  const sizeSlider = document.getElementById('size-slider')
+  const autoSize = document.getElementById('auto-size')
+  const twoCol = document.getElementById('two-col')
+
+  savedBreakIndices = []
+
+  if (prefs) {
+    if (prefs.font) fontSelect.value = prefs.font
+    if (prefs.font_size) {
+      sizeSlider.value = prefs.font_size
+      document.getElementById('size-label').textContent = prefs.font_size + 'px'
+      autoSize.checked = false
+    } else {
+      autoSize.checked = true
+    }
+    twoCol.checked = !!prefs.two_col
+
+    // Restore manual breaks
+    if (prefs.manual_breaks) {
+      manualBreaksMode = true
+      const breakIndices = JSON.parse(prefs.manual_breaks)
+      savedBreakIndices = breakIndices
+      const blanks = document.querySelectorAll('#chord-viewer-content .cp-blank')
+      for (const idx of breakIndices) {
+        if (blanks[idx]) blanks[idx].classList.add('cp-page-break')
+      }
+    }
+  } else {
+    autoSize.checked = true
+    twoCol.checked = false
+  }
+
   const song = document.querySelector('#chord-viewer-content .cp-song')
   if (song) {
-    song.style.fontFamily = font
+    song.style.fontFamily = fontSelect.value
   }
   setupPageBreakClickHandlers()
 
-  if (document.getElementById('auto-size').checked) {
+  // Size/break calculation must happen before 2-col, since applyTwoCol needs page breaks in the DOM
+  if (autoSize.checked) {
     autoFitSize()
   } else {
-    const size = document.getElementById('size-slider').value
-    if (song) song.style.fontSize = size + 'px'
+    if (song) song.style.fontSize = sizeSlider.value + 'px'
   }
+
+  if (twoCol.checked) {
+    savedBreakIndices = collectBreakIndices()
+    applyTwoCol()
+  }
+}
+
+function collectBreakIndices() {
+  const blanks = document.querySelectorAll('#chord-viewer-content .cp-blank')
+  const indices = []
+  blanks.forEach((blank, idx) => {
+    if (blank.classList.contains('cp-page-break')) {
+      indices.push(idx)
+    }
+  })
+  return indices
+}
+
+async function saveDisplayPrefs() {
+  if (!currentViewSongId) return
+  const font = document.getElementById('font-select').value
+  const autoSize = document.getElementById('auto-size').checked
+  const fontSize = autoSize ? null : Number(document.getElementById('size-slider').value)
+  const twoCol = document.getElementById('two-col').checked
+
+  // When 2-col is active, breaks have been consumed from the DOM — use the saved copy
+  const manualBreaks = twoCol ? savedBreakIndices : collectBreakIndices()
+
+  await fetch(`/api/plan/display-prefs/${currentViewSongId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      font,
+      fontSize,
+      twoCol,
+      manualBreaks: manualBreaks.length > 0 ? manualBreaks : null,
+    }),
+  })
 }
 
 // Edit Source
@@ -607,10 +684,12 @@ function setupPageBreakClickHandlers() {
       }
 
       blank.classList.toggle('cp-page-break')
+      savedBreakIndices = collectBreakIndices()
 
       if (document.getElementById('auto-size').checked) {
         autoFitSize()
       }
+      saveDisplayPrefs()
     })
   })
 }
@@ -640,22 +719,32 @@ document.getElementById('font-select').addEventListener('change', (e) => {
   const target = document.querySelector('#chord-viewer-content .cp-two-col') || document.querySelector('#chord-viewer-content .cp-song')
   if (target) target.style.fontFamily = e.target.value
   if (document.getElementById('auto-size').checked) autoFitSize()
+  saveDisplayPrefs()
 })
 
+let sizeDebounceTimer = null
 document.getElementById('size-slider').addEventListener('input', (e) => {
   document.getElementById('auto-size').checked = false
   const target = document.querySelector('#chord-viewer-content .cp-two-col') || document.querySelector('#chord-viewer-content .cp-song')
   if (target) target.style.fontSize = e.target.value + 'px'
   document.getElementById('size-label').textContent = e.target.value + 'px'
+  clearTimeout(sizeDebounceTimer)
+  sizeDebounceTimer = setTimeout(() => saveDisplayPrefs(), 500)
 })
 
 document.getElementById('auto-size').addEventListener('change', (e) => {
   if (e.target.checked) autoFitSize()
+  saveDisplayPrefs()
 })
 
 document.getElementById('two-col').addEventListener('change', () => {
+  const twoCol = document.getElementById('two-col').checked
+  if (twoCol) {
+    savedBreakIndices = collectBreakIndices()
+  }
   applyTwoCol()
   if (document.getElementById('auto-size').checked) autoFitSize()
+  saveDisplayPrefs()
 })
 
 function applyTwoCol() {
@@ -712,9 +801,20 @@ function applyTwoCol() {
   if (current.length) pages.push(current)
 
   if (pages.length < 2) {
-    alert('Set page breaks first to define where columns split')
-    document.getElementById('two-col').checked = false
-    return
+    // No page breaks found — split content at midpoint of verse blocks
+    const headerEls = children.filter(c =>
+      c.tagName === 'H1' || (c.tagName === 'P' && (c.classList.contains('cp-artist') || c.classList.contains('cp-meta')))
+    )
+    const contentEls = children.filter(c => !headerEls.includes(c))
+    if (contentEls.length < 4) {
+      document.getElementById('two-col').checked = false
+      return
+    }
+    const mid = Math.floor(contentEls.length / 2)
+    pages.length = 0
+    // Include headers in first page so they get extracted downstream
+    pages.push([...headerEls, ...contentEls.slice(0, mid)])
+    pages.push(contentEls.slice(mid))
   }
 
   // Build two-col wrapper
@@ -909,6 +1009,70 @@ function autoFitTwoCol(wrapper) {
   document.getElementById('size-slider').value = 10
   document.getElementById('size-label').textContent = '10px'
 }
+
+// Email draft
+document.getElementById('email-draft-btn').addEventListener('click', () => {
+  const draft = document.getElementById('email-draft')
+  if (!draft.classList.contains('hidden')) {
+    draft.classList.add('hidden')
+    return
+  }
+
+  if (!currentPlan) return
+
+  const mainSongs = currentPlan.songs.filter(s => s.position >= 1 && s.position < COMMUNION_OFFSET)
+  const songLines = mainSongs.map((s, i) => `${i + 1}. ${s.name}`).join('\n')
+  const reasonLines = mainSongs
+    .filter(s => s.notes)
+    .map((s, i) => `${i + 1}. ${s.notes}`)
+    .join('\n')
+
+  const date = currentPlan.date
+  const theme = currentPlan.theme || ''
+  const passage = currentPlan.bible_passage || ''
+
+  let text = `Hi Vicar,\n\nHere are the songs for ${date}${theme || passage ? ` (${[theme, passage].filter(Boolean).join(' / ')})` : ''}:\n\n${songLines}`
+
+  if (reasonLines) {
+    text += `\n\nReasoning:\n${reasonLines}`
+  }
+
+  text += `\n\nLet me know if you'd like any changes.\n\nBen`
+
+  document.getElementById('email-draft-content').textContent = text
+  draft.classList.remove('hidden')
+})
+
+document.getElementById('copy-email-btn').addEventListener('click', () => {
+  const text = document.getElementById('email-draft-content').textContent
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-email-btn')
+    btn.textContent = 'Copied!'
+    setTimeout(() => { btn.textContent = 'Copy to Clipboard' }, 2000)
+  })
+})
+
+// Export All button
+document.getElementById('export-all-btn').addEventListener('click', async () => {
+  if (!currentPlan) return
+  const btn = document.getElementById('export-all-btn')
+  btn.textContent = 'Exporting...'
+  btn.disabled = true
+
+  try {
+    const res = await fetch(`/api/plan/${currentPlan.id}/export`, { method: 'POST' })
+    const result = await res.json()
+    const summary = result.songs.map(s =>
+      `${s.name}: ${[s.chordpro ? 'chords' : '', s.pdf ? 'PDF' : ''].filter(Boolean).join(', ') || 'no files'}`
+    ).join('\n')
+    alert(`Exported to ./${result.path}/\n\n${summary}`)
+  } catch (err) {
+    alert('Export failed: ' + err.message)
+  } finally {
+    btn.textContent = 'Export All'
+    btn.disabled = false
+  }
+})
 
 // Archive button
 document.getElementById('archive-btn').addEventListener('click', async () => {

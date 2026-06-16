@@ -21,20 +21,20 @@ if (!values.date || !values.songs) {
   process.exit(1)
 }
 
-const songs = JSON.parse(values.songs) as { songId: number; position: number; key?: string }[]
+const songs = JSON.parse(values.songs) as { songId: number; position: number; key?: string; notes?: string }[]
 
 const insertService = db.prepare(
   'INSERT INTO planned_services (date, theme, bible_passage, music_leader) VALUES (?, ?, ?, ?)'
 )
 const insertSong = db.prepare(
-  'INSERT INTO planned_service_songs (service_id, song_id, position, key) VALUES (?, ?, ?, ?)'
+  'INSERT INTO planned_service_songs (service_id, song_id, position, key, notes) VALUES (?, ?, ?, ?, ?)'
 )
 
 const result = insertService.run(values.date, values.theme || null, values.passage || null, values.leader || null)
 const serviceId = result.lastInsertRowid as number
 
 for (const s of songs) {
-  insertSong.run(serviceId, s.songId, s.position, s.key || null)
+  insertSong.run(serviceId, s.songId, s.position, s.key || null, s.notes || null)
 }
 
 console.log(`Saved service plan #${serviceId} for ${values.date}`)
