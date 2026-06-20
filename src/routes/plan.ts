@@ -2,6 +2,7 @@ import { Router } from 'express'
 import Database from 'better-sqlite3'
 import { resolve } from 'path'
 import { existsSync, mkdirSync, copyFileSync, writeFileSync, readFileSync } from 'fs'
+import puppeteer from 'puppeteer'
 import { parseChordPro, transposeSong, semitonesFromTo, renderToText } from '../chordpro/parser.js'
 import { renderToHtml } from '../chordpro/html-renderer.js'
 
@@ -213,7 +214,7 @@ planRouter.patch('/:id/songs', (req, res) => {
   res.json({ songs: updated })
 })
 
-planRouter.post('/:id/export', (req, res) => {
+planRouter.post('/:id/export', async (req, res) => {
   const db = getDb()
   const service = db.prepare(
     'SELECT * FROM planned_services WHERE id = ?'
@@ -238,60 +239,128 @@ planRouter.post('/:id/export', (req, res) => {
   const chordproDir = resolve(import.meta.dirname, '../../data/chordpro')
   const sheetsDir = resolve(import.meta.dirname, '../../data/sheets')
   const cssPath = resolve(import.meta.dirname, '../../public/css/chordpro.css')
+  const layoutJsPath = resolve(import.meta.dirname, '../../public/js/chord-layout.js')
   const css = existsSync(cssPath) ? readFileSync(cssPath, 'utf-8') : ''
+  const layoutJs = existsSync(layoutJsPath) ? readFileSync(layoutJsPath, 'utf-8') : ''
   const exported: { name: string; chordpro: boolean; pdf: boolean }[] = []
 
-  for (const song of songs) {
-    const safeName = song.name.replace(/[/\\?%*:|"<>]/g, '-')
-    const songDir = resolve(exportBase, safeName)
-    mkdirSync(songDir, { recursive: true })
+  // Launch one browser for the whole export
+  const browser = await puppeteer.launch({ headless: true })
 
-    let hasChordpro = false
-    let hasPdf = false
+  try {
+    for (const song of songs) {
+      const safeName = song.name.replace(/[/\\?%*:|"<>]/g, '-')
+      const songDir = resolve(exportBase, safeName)
+      mkdirSync(songDir, { recursive: true })
 
-    if (song.chordpro_file) {
-      const cpPath = resolve(chordproDir, song.chordpro_file)
-      if (existsSync(cpPath)) {
-        const source = readFileSync(cpPath, 'utf-8')
-        let parsed = parseChordPro(source)
-        const targetKey = song.key || song.default_key
-        if (targetKey && parsed.key) {
-          const semitones = semitonesFromTo(parsed.key, targetKey)
-          if (semitones !== 0) parsed = transposeSong(parsed, semitones)
-        }
+      let hasChordpro = false
+      let hasPdf = false
 
-        const text = renderToText(parsed)
-        writeFileSync(resolve(songDir, `${safeName}.txt`), text, 'utf-8')
+      if (song.chordpro_file) {
+        const cpPath = resolve(chordproDir, song.chordpro_file)
+        if (existsSync(cpPath)) {
+          const source = readFileSync(cpPath, 'utf-8')
+          let parsed = parseChordPro(source)
+          const targetKey = song.key || song.default_key
+          if (targetKey && parsed.key) {
+            const semitones = semitonesFromTo(parsed.key, targetKey)
+            if (semitones !== 0) parsed = transposeSong(parsed, semitones)
+          }
 
-        const prefs = db.prepare(
-          'SELECT * FROM song_display_prefs WHERE song_id = ?'
-        ).get(song.song_id) as any
+          const text = renderToText(parsed)
+          writeFileSync(resolve(songDir, `${safeName}.txt`), text, 'utf-8')
 
-        const html = renderToHtml(parsed)
-        const font = prefs?.font || "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-        const fontSize = prefs?.font_size || 18
-        const styledHtml = `<!DOCTYPE html>
+          const prefs = db.prepare(
+            'SELECT * FROM song_display_prefs WHERE song_id = ?'
+          ).get(song.song_id) as any
+
+          const html = renderToHtml(parsed)
+          const font = prefs?.font || "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          const fontSize: number | null = prefs?.font_size ?? null // null => auto-fit
+          const twoCol = !!prefs?.two_col
+          const manualBreaks: number[] = prefs?.manual_breaks ? JSON.parse(prefs.manual_breaks) : []
+
+          // The 2-col layout and auto-fit are JS-driven against the live DOM, so we run
+          // them inside the headless page using the same shared module the in-app
+          // chord viewer uses. This keeps the PDF visually identical to the print preview.
+          const styledHtml = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>${safeName}</title>
 <style>${css}
-.cp-song { font-family: ${font}; font-size: ${fontSize}px; }
-@media print { .cp-blank.cp-page-break { page-break-after: always; break-after: page; } }
-</style></head><body>${html}</body></html>`
-        writeFileSync(resolve(songDir, `${safeName}.html`), styledHtml, 'utf-8')
-        hasChordpro = true
-      }
-    }
+body { margin: 0; padding: 0; }
+.cp-song, .cp-two-col { font-family: ${font}; }
+.cp-blank.cp-page-break {
+  border: none;
+  margin: 0;
+  padding: 0;
+  page-break-after: always;
+  break-after: page;
+}
+.cp-blank.cp-page-break::after { display: none; }
+.cp-two-col-row {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+</style></head><body><div id="chord-viewer-content">${html}</div>
+<script>${layoutJs}</script>
+<script>
+(function () {
+  var content = document.getElementById('chord-viewer-content');
+  var manualBreaks = ${JSON.stringify(manualBreaks)};
+  var twoCol = ${JSON.stringify(twoCol)};
+  var fixedSize = ${fontSize === null ? 'null' : JSON.stringify(fontSize)};
 
-    if (song.sheet_pdf) {
-      const pdfPath = resolve(sheetsDir, song.sheet_pdf)
-      if (existsSync(pdfPath)) {
-        copyFileSync(pdfPath, resolve(songDir, song.sheet_pdf))
-        hasPdf = true
-      }
-    }
+  ChordLayout.applyManualBreaks(content, manualBreaks);
 
-    exported.push({ name: song.name, chordpro: hasChordpro, pdf: hasPdf })
+  var song = content.querySelector('.cp-song');
+  if (fixedSize !== null && song) {
+    song.style.fontSize = fixedSize + 'px';
   }
 
-  db.close()
+  if (twoCol) ChordLayout.applyTwoCol(content, true);
+
+  if (fixedSize === null) {
+    // Auto-fit (matches the chord viewer when "Auto size" is on)
+    ChordLayout.autoFitSize(content, manualBreaks.length > 0);
+  } else if (twoCol) {
+    var wrapper = content.querySelector('.cp-two-col');
+    if (wrapper) wrapper.style.fontSize = fixedSize + 'px';
+  }
+})();
+</script>
+</body></html>`
+
+          // Render to PDF via headless Chrome (matches the in-app Print Chords output)
+          const page = await browser.newPage()
+          // Match the chord viewer's measurement viewport so auto-fit picks the same size.
+          // PAGE_HEIGHT = 980 in the layout module — give the viewport a bit more headroom.
+          await page.setViewport({ width: 816, height: 1056 })
+          await page.setContent(styledHtml, { waitUntil: 'load' })
+          await page.pdf({
+            path: resolve(songDir, `${safeName} - Chords.pdf`),
+            format: 'Letter',
+            printBackground: true,
+            margin: { top: '0.4in', right: '0.4in', bottom: '0.4in', left: '0.4in' },
+          })
+          await page.close()
+
+          hasChordpro = true
+        }
+      }
+
+      if (song.sheet_pdf) {
+        const pdfPath = resolve(sheetsDir, song.sheet_pdf)
+        if (existsSync(pdfPath)) {
+          copyFileSync(pdfPath, resolve(songDir, song.sheet_pdf))
+          hasPdf = true
+        }
+      }
+
+      exported.push({ name: song.name, chordpro: hasChordpro, pdf: hasPdf })
+    }
+  } finally {
+    await browser.close()
+    db.close()
+  }
+
   res.json({ path: `exports/${service.date}`, songs: exported })
 })
