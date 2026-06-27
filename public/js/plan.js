@@ -696,15 +696,11 @@ document.getElementById('chord-viewer-close').addEventListener('click', () => {
 })
 
 document.getElementById('chord-viewer-print').addEventListener('click', async () => {
-  const content = document.getElementById('chord-viewer-content').innerHTML
+  const contentEl = document.getElementById('chord-viewer-content')
   const font = document.getElementById('font-select').value
-  const size = document.getElementById('size-slider').value
   const cssRes = await fetch('/css/chordpro.css')
   const css = await cssRes.text()
-  const win = window.open('', '_blank')
-  win.document.write(`<html><head><style>${css} .cp-song, .cp-two-col { font-family: ${font} !important; font-size: ${size}px !important; } .cp-blank-clickable { cursor: default; } .cp-blank.cp-page-break { border: none; margin: 0; padding: 0; page-break-after: always; break-after: page; } .cp-blank.cp-page-break::after { display: none; } .cp-two-col-row { break-inside: avoid; page-break-inside: avoid; }</style></head><body>${content}</body></html>`)
-  win.document.close()
-  setTimeout(() => win.print(), 100)
+  ChordLayout.printOptimized(css, contentEl, font)
 })
 
 document.getElementById('print-summary-btn').addEventListener('click', () => {

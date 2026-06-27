@@ -1,13 +1,17 @@
-// Chord sheet layout helpers — shared between the in-app chord viewer (plan.js)
-// and the server-side PDF export (rendered inside a headless Chrome page).
+// Chord sheet layout helpers — shared between the in-app chord viewer (plan.js),
+// the chord sheets page (chordpro.js), and the server-side PDF export.
 //
 // All functions operate on a passed-in container element rather than reaching
 // into the page's UI controls, so they work in both contexts.
 ;(function (root) {
   'use strict'
 
-  const PAGE_HEIGHT = 980
+  // Print-area heights (A4 at 96dpi with ~15mm margins)
+  const PORTRAIT_HEIGHT = 960
+  const LANDSCAPE_HEIGHT = 640
+
   const TARGET_SIZE = 20
+  const MAX_SIZE = 36
   const MIN_SIZE = 10
 
   function applyManualBreaks(contentEl, breakIndices) {
@@ -22,7 +26,6 @@
   // Returns true if 2-col was applied, false if there wasn't enough content,
   // or undefined when only undoing an existing layout.
   function applyTwoCol(contentEl, twoColEnabled, onUnapplied) {
-    // Undo any existing 2-col layout first
     const existing = contentEl.querySelector('.cp-two-col')
     if (existing) {
       const origSong = document.createElement('div')
@@ -69,7 +72,6 @@
     if (current.length) pages.push(current)
 
     if (pages.length < 2) {
-      // Not enough explicit breaks — split content at midpoint of body sections
       const headerEls = children.filter(
         (c) =>
           c.tagName === 'H1' ||
@@ -78,7 +80,7 @@
       )
       const contentEls = children.filter((c) => !headerEls.includes(c))
       if (contentEls.length < 4) {
-        return false // not enough content for two-col
+        return false
       }
       const mid = Math.floor(contentEls.length / 2)
       pages.length = 0
@@ -91,7 +93,6 @@
     wrapper.style.fontFamily = song.style.fontFamily
     wrapper.style.fontSize = song.style.fontSize
 
-    // Pull the title/artist/meta out into a single header that spans both columns
     const headerEls = pages[0].filter(
       (el) =>
         el.tagName === 'H1' ||
@@ -131,10 +132,12 @@
   }
 
   // Returns the picked font size (in px). Mutates the DOM to add auto-paginated
-  // page breaks and set font-size.
-  function autoFitSize(contentEl, manualBreaksMode) {
+  // page breaks and set font-size. pageHeight overrides the default.
+  function autoFitSize(contentEl, manualBreaksMode, pageHeight) {
+    const PAGE_HEIGHT = pageHeight || PORTRAIT_HEIGHT
+
     const twoCol = contentEl.querySelector('.cp-two-col')
-    if (twoCol) return autoFitTwoCol(twoCol)
+    if (twoCol) return autoFitTwoCol(twoCol, PAGE_HEIGHT)
 
     const song = contentEl.querySelector('.cp-song')
     if (!song) return TARGET_SIZE
@@ -151,8 +154,7 @@
 
     if (manualBreaksMode || manualBreaks.size > 0) {
       if (manualBreaks.size === 0) {
-        // User cleared all breaks — fit everything onto one page
-        for (let size = TARGET_SIZE; size >= MIN_SIZE; size--) {
+        for (let size = MAX_SIZE; size >= MIN_SIZE; size--) {
           song.style.fontSize = size + 'px'
           if (song.scrollHeight <= PAGE_HEIGHT) return size
         }
@@ -160,7 +162,7 @@
         return MIN_SIZE
       }
 
-      for (let size = TARGET_SIZE; size >= MIN_SIZE; size--) {
+      for (let size = MAX_SIZE; size >= MIN_SIZE; size--) {
         song.style.fontSize = size + 'px'
         let pageUsed = 0
         let fits = true
@@ -181,8 +183,14 @@
       return MIN_SIZE
     }
 
-    // No manual breaks and no user interaction — auto-paginate
-    let bestSize = TARGET_SIZE
+    // No manual breaks — try to fit on one page first, sizing UP from target
+    for (let size = MAX_SIZE; size >= MIN_SIZE; size--) {
+      song.style.fontSize = size + 'px'
+      if (song.scrollHeight <= PAGE_HEIGHT) return size
+    }
+
+    // Doesn't fit on one page even at min size — auto-paginate
+    let bestSize = MIN_SIZE
     for (let size = TARGET_SIZE; size >= MIN_SIZE; size--) {
       song.style.fontSize = size + 'px'
 
@@ -236,21 +244,144 @@
     return bestSize
   }
 
-  function autoFitTwoCol(wrapper) {
+  function autoFitTwoCol(wrapper, pageHeight) {
+    const PAGE_HEIGHT = pageHeight || PORTRAIT_HEIGHT
     const rows = wrapper.querySelectorAll('.cp-two-col-row')
-    for (let size = TARGET_SIZE; size >= MIN_SIZE; size--) {
+    for (let size = MAX_SIZE; size >= MIN_SIZE; size--) {
       wrapper.style.fontSize = size + 'px'
-      let fits = true
+      let totalHeight = 0
+      const header = wrapper.querySelector('.cp-two-col-header')
+      if (header) totalHeight += header.getBoundingClientRect().height
       for (const row of rows) {
-        if (row.getBoundingClientRect().height > PAGE_HEIGHT) {
-          fits = false
-          break
-        }
+        totalHeight += row.getBoundingClientRect().height
       }
-      if (fits) return size
+      if (totalHeight <= PAGE_HEIGHT) return size
     }
     wrapper.style.fontSize = MIN_SIZE + 'px'
     return MIN_SIZE
+  }
+
+  // Determine the optimal layout for printing. Tests portrait single-col,
+  // portrait 2-col, and landscape 2-col, picks whichever yields the largest
+  // readable font size on a single page.
+  // Returns { layout: 'portrait'|'landscape', twoCol: boolean, fontSize: number }
+  function optimizeForPrint(contentEl) {
+    const song = contentEl.querySelector('.cp-song') || contentEl.querySelector('.cp-two-col')
+    if (!song) return { layout: 'portrait', twoCol: false, fontSize: TARGET_SIZE }
+
+    const savedHTML = contentEl.innerHTML
+    const savedFont = song.style.fontFamily
+
+    // Test 1: Portrait single-column — fit everything on one page
+    applyTwoCol(contentEl, false)
+    const portraitSingle = autoFitSize(contentEl, false, PORTRAIT_HEIGHT)
+    const portraitSinglePages = countPages(contentEl)
+
+    // Test 2: Portrait 2-col
+    contentEl.innerHTML = savedHTML
+    restoreFont(contentEl, savedFont)
+    applyTwoCol(contentEl, false)
+    const applied2col = applyTwoCol(contentEl, true)
+    let portrait2col = 0
+    if (applied2col !== false) {
+      portrait2col = autoFitSize(contentEl, false, PORTRAIT_HEIGHT)
+    }
+
+    // Test 3: Landscape 2-col
+    contentEl.innerHTML = savedHTML
+    restoreFont(contentEl, savedFont)
+    applyTwoCol(contentEl, false)
+    const appliedLandscape = applyTwoCol(contentEl, true)
+    let landscape2col = 0
+    if (appliedLandscape !== false) {
+      landscape2col = autoFitSize(contentEl, false, LANDSCAPE_HEIGHT)
+    }
+
+    // Restore original state
+    contentEl.innerHTML = savedHTML
+    restoreFont(contentEl, savedFont)
+
+    // Pick the best: largest font that fits on one page
+    // Portrait single-col gets a slight bonus (+1) because no column splitting
+    const candidates = [
+      { layout: 'portrait', twoCol: false, fontSize: portraitSingle + 1, pages: portraitSinglePages },
+      { layout: 'portrait', twoCol: true, fontSize: portrait2col, pages: 1 },
+      { layout: 'landscape', twoCol: true, fontSize: landscape2col, pages: 1 },
+    ].filter(c => c.fontSize > MIN_SIZE)
+
+    // Prefer single-page layouts; among those, pick largest font
+    const singlePage = candidates.filter(c => c.pages === 1)
+    const pool = singlePage.length > 0 ? singlePage : candidates
+
+    pool.sort((a, b) => b.fontSize - a.fontSize)
+    const best = pool[0] || { layout: 'portrait', twoCol: false, fontSize: TARGET_SIZE }
+    // Remove the bonus we added for comparison
+    if (!best.twoCol) best.fontSize = Math.min(best.fontSize - 1, MAX_SIZE)
+
+    return best
+  }
+
+  function countPages(contentEl) {
+    const song = contentEl.querySelector('.cp-song')
+    if (!song) return 1
+    const breaks = song.querySelectorAll('.cp-page-break')
+    return breaks.length + 1
+  }
+
+  function restoreFont(contentEl, font) {
+    const el = contentEl.querySelector('.cp-song') || contentEl.querySelector('.cp-two-col')
+    if (el && font) el.style.fontFamily = font
+  }
+
+  // Open a print window with optimal layout applied.
+  // cssText: the chordpro.css content
+  // contentEl: the container with the chord sheet
+  // font: font-family string
+  function printOptimized(cssText, contentEl, font) {
+    const savedHTML = contentEl.innerHTML
+    const savedFont = (contentEl.querySelector('.cp-song') || contentEl.querySelector('.cp-two-col'))?.style.fontFamily
+
+    // Run optimizer
+    const best = optimizeForPrint(contentEl)
+
+    // Rebuild DOM in the chosen layout
+    contentEl.innerHTML = savedHTML
+    restoreFont(contentEl, savedFont)
+    applyTwoCol(contentEl, false)
+    if (best.twoCol) applyTwoCol(contentEl, true)
+
+    const target = contentEl.querySelector('.cp-two-col') || contentEl.querySelector('.cp-song')
+    if (target) {
+      target.style.fontSize = best.fontSize + 'px'
+      target.style.fontFamily = font
+    }
+
+    const content = contentEl.innerHTML
+
+    // Restore the on-screen state
+    contentEl.innerHTML = savedHTML
+    restoreFont(contentEl, savedFont)
+
+    const pageCSS = best.layout === 'landscape'
+      ? '@page { size: landscape; margin: 10mm; }'
+      : '@page { size: portrait; margin: 12mm; }'
+
+    const overrideCSS = `
+      ${pageCSS}
+      body { margin: 0; padding: 0; }
+      .cp-song, .cp-two-col { font-family: ${font} !important; font-size: ${best.fontSize}px !important; }
+      .cp-blank-clickable { cursor: default; }
+      .cp-blank.cp-page-break { border: none; margin: 0; padding: 0; page-break-after: always; break-after: page; }
+      .cp-blank.cp-page-break::after { display: none; }
+      .cp-two-col-row { break-inside: avoid; page-break-inside: avoid; }
+    `
+
+    const win = window.open('', '_blank')
+    win.document.write(`<html><head><style>${cssText}\n${overrideCSS}</style></head><body>${content}</body></html>`)
+    win.document.close()
+    setTimeout(() => win.print(), 150)
+
+    return best
   }
 
   root.ChordLayout = {
@@ -258,7 +389,11 @@
     applyTwoCol,
     autoFitSize,
     autoFitTwoCol,
-    PAGE_HEIGHT,
+    optimizeForPrint,
+    printOptimized,
+    PORTRAIT_HEIGHT,
+    LANDSCAPE_HEIGHT,
+    MAX_SIZE,
     TARGET_SIZE,
     MIN_SIZE,
   }

@@ -46,7 +46,12 @@
       "Bash(cp /Users/bebradfo/code/selectsong/downloads/*.pdf /Users/bebradfo/code/selectsong/data/sheets/)",
       "Bash(lsof -iTCP -sTCP:LISTEN)",
       "Bash(lsof -iTCP:4000 -sTCP:LISTEN)",
-      "Bash(lsof -iTCP:3000 -sTCP:LISTEN)"
+      "Bash(lsof -iTCP:3000 -sTCP:LISTEN)",
+      "Bash(lsof -i :4000 -sTCP:LISTEN)",
+      "Bash(awk 'NR>1 {print $2}')",
+      "Bash(xargs -I{} ps -p {} -o command=)",
+      "Bash(git -C /Users/bebradfo/code/selectsong log --oneline --all -- .env)",
+      "mcp__npm__playwright_mcp__browser_navigate"
     ]
   },
   "disabledMcpjsonServers": [
