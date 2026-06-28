@@ -56,7 +56,8 @@
       "mcp__npm__playwright_mcp__browser_click",
       "mcp__npm__playwright_mcp__browser_take_screenshot",
       "mcp__npm__playwright_mcp__browser_console_messages",
-      "mcp__npm__playwright_mcp__browser_evaluate"
+      "mcp__npm__playwright_mcp__browser_evaluate",
+      "mcp__npm__playwright_mcp__browser_tabs"
     ]
   },
   "disabledMcpjsonServers": [

@@ -6,11 +6,11 @@
 ;(function (root) {
   'use strict'
 
-  // A4 print dimensions at 96dpi with margins
-  const PORTRAIT_WIDTH = 553   // 146mm content width
-  const PORTRAIT_HEIGHT = 1020 // 269mm content height (12mm margins)
-  const LANDSCAPE_WIDTH = 860  // 227mm content width
-  const LANDSCAPE_HEIGHT = 680 // 180mm content height
+  // A4 print dimensions at 96dpi (actual Chrome print rendering)
+  const PORTRAIT_WIDTH = 715   // 190mm content width (10mm margins)
+  const PORTRAIT_HEIGHT = 1047 // 277mm content height
+  const LANDSCAPE_WIDTH = 1060 // 281mm content width (8mm margins)
+  const LANDSCAPE_HEIGHT = 730 // 194mm content height
 
   const TARGET_SIZE = 20
   const MAX_SIZE = 36
@@ -257,24 +257,42 @@
     return MIN_SIZE
   }
 
-  // Check if any chord line (with actual chords) overflows its column
+  // Remove CCLI footer (the last .cp-verse that has no .cp-section header)
+  function stripCCLI(containerEl) {
+    const verses = containerEl.querySelectorAll('.cp-verse')
+    if (!verses.length) return
+    const last = verses[verses.length - 1]
+    if (!last.querySelector('.cp-section')) {
+      const prev = last.previousElementSibling
+      if (prev && prev.classList.contains('cp-blank')) prev.remove()
+      last.remove()
+    }
+  }
+
+  // Check if any chord line (with actual chords) would overflow its column.
+  // Temporarily forces nowrap to measure true content width.
   function hasHorizontalOverflow(containerEl) {
     const lines = containerEl.querySelectorAll('.cp-line')
     for (const line of lines) {
       if (!line.querySelector('.cp-chord')) continue
+      const saved = line.style.whiteSpace
+      line.style.whiteSpace = 'nowrap'
       const parent = line.closest('.cp-col') || line.closest('.cp-song') || line.closest('.cp-two-col') || containerEl
       const parentWidth = parent.getBoundingClientRect().width
-      if (line.scrollWidth > parentWidth + 2) return true
+      const overflow = line.scrollWidth > parentWidth + 2
+      line.style.whiteSpace = saved
+      if (overflow) return true
     }
     return false
   }
 
-  // Determine the optimal print layout. Tests portrait single-col, portrait
-  // 2-col, and landscape 2-col. Rejects layouts where chord lines overflow.
-  // Returns { layout: 'portrait'|'landscape', twoCol: boolean, fontSize: number }
+  // Determine the optimal print layout.
+  // Priority: 1) fewest pages, 2) largest font, 3) maximize space.
+  // 2-up rejected if chord lines overflow columns.
+  // Returns { layout: 'portrait'|'landscape', twoCol: boolean, fontSize: number, pages: number }
   function optimizeForPrint(contentEl) {
     const song = contentEl.querySelector('.cp-song') || contentEl.querySelector('.cp-two-col')
-    if (!song) return { layout: 'portrait', twoCol: false, fontSize: TARGET_SIZE }
+    if (!song) return { layout: 'portrait', twoCol: false, fontSize: TARGET_SIZE, pages: 1 }
 
     const savedHTML = contentEl.innerHTML
     const font = song.style.fontFamily
@@ -283,104 +301,176 @@
     measure.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;'
     document.body.appendChild(measure)
 
-    function testLayout(width, height, useTwoCol) {
+    function setupMeasure(width) {
       measure.style.width = width + 'px'
       measure.innerHTML = savedHTML
-      // Apply print-tight spacing for accurate measurement
+      stripCCLI(measure)
       measure.querySelectorAll('.cp-line').forEach(l => { l.style.paddingTop = '1.1em' })
       measure.querySelectorAll('.cp-song').forEach(s => { s.style.lineHeight = '1.3' })
       const el = measure.querySelector('.cp-song') || measure.querySelector('.cp-two-col')
       if (el && font) el.style.fontFamily = font
-      applyTwoCol(measure, false)
-      if (useTwoCol) {
-        const result = applyTwoCol(measure, true)
-        if (result === false) return 0
-      }
-      const size = autoFitSize(measure, false, height)
-      // Reject if chord lines overflow columns
-      if (hasHorizontalOverflow(measure)) return 0
-      return size
     }
 
-    const portraitSingle = testLayout(PORTRAIT_WIDTH, PORTRAIT_HEIGHT, false)
-    const portraitSinglePages = countPages(measure)
-    const portrait2col = testLayout(PORTRAIT_WIDTH, PORTRAIT_HEIGHT, true)
-    const landscape2col = testLayout(LANDSCAPE_WIDTH, LANDSCAPE_HEIGHT, true)
+    function countPages() {
+      const s = measure.querySelector('.cp-song')
+      if (!s) return 1
+      return s.querySelectorAll('.cp-page-break').length + 1
+    }
+
+    // Test portrait single-col
+    setupMeasure(PORTRAIT_WIDTH)
+    const portraitSize = autoFitSize(measure, false, PORTRAIT_HEIGHT)
+    const portraitPages = countPages()
+
+    // Test landscape 2-col — reduce font until no chord line overflow
+    setupMeasure(LANDSCAPE_WIDTH)
+    applyTwoCol(measure, false)
+    const applied = applyTwoCol(measure, true)
+    let landscape2colSize = 0
+    let landscape2colPages = 99
+    if (applied !== false) {
+      const maxSize = autoFitSize(measure, false, LANDSCAPE_HEIGHT)
+      for (let size = maxSize; size >= MIN_SIZE; size--) {
+        const target = measure.querySelector('.cp-two-col')
+        if (target) target.style.fontSize = size + 'px'
+        if (!hasHorizontalOverflow(measure)) {
+          landscape2colSize = size
+          landscape2colPages = 1
+          break
+        }
+      }
+    }
 
     document.body.removeChild(measure)
 
-    // Decision logic:
-    // 1. If portrait single-col fits on one page at >=12px, always use it
-    //    (cleanest layout, no column splitting, full width for chords)
-    // 2. Otherwise pick the largest font among viable options
-    if (portraitSingle >= 12 && portraitSinglePages === 1) {
-      return { layout: 'portrait', twoCol: false, fontSize: portraitSingle }
+    // Prefer landscape 2-up if it fits on 1 page without overflow.
+    // It uses page space most efficiently. Fall back to portrait otherwise.
+    if (landscape2colSize >= MIN_SIZE && landscape2colPages === 1) {
+      return { layout: 'landscape', twoCol: true, fontSize: landscape2colSize, pages: 1 }
     }
 
-    const candidates = [
-      { layout: 'portrait', twoCol: false, fontSize: portraitSingle, pages: portraitSinglePages },
-      { layout: 'portrait', twoCol: true, fontSize: portrait2col, pages: 1 },
-      { layout: 'landscape', twoCol: true, fontSize: landscape2col, pages: 1 },
-    ].filter(c => c.fontSize > 0)
-
-    const singlePage = candidates.filter(c => c.pages === 1)
-    const pool = singlePage.length > 0 ? singlePage : candidates
-
-    pool.sort((a, b) => b.fontSize - a.fontSize)
-    return pool[0] || { layout: 'portrait', twoCol: false, fontSize: TARGET_SIZE }
+    return { layout: 'portrait', twoCol: false, fontSize: portraitSize, pages: portraitPages }
   }
 
-  function countPages(contentEl) {
-    const song = contentEl.querySelector('.cp-song')
-    if (!song) return 1
-    const breaks = song.querySelectorAll('.cp-page-break')
-    return breaks.length + 1
-  }
 
-  // Open a print window with optimal layout applied.
+
+  // Open a print preview window with controls to adjust layout before printing.
   function printOptimized(cssText, contentEl, font) {
     const savedHTML = contentEl.innerHTML
-
     const best = optimizeForPrint(contentEl)
 
-    // Build final print content in a width-constrained container
-    const width = best.layout === 'landscape' ? LANDSCAPE_WIDTH : PORTRAIT_WIDTH
-    const build = document.createElement('div')
-    build.style.cssText = `position:absolute;left:-9999px;top:0;visibility:hidden;width:${width}px;`
-    document.body.appendChild(build)
-    build.innerHTML = savedHTML
-    const el = build.querySelector('.cp-song') || build.querySelector('.cp-two-col')
-    if (el) el.style.fontFamily = font
-    applyTwoCol(build, false)
-    if (best.twoCol) applyTwoCol(build, true)
-    const target = build.querySelector('.cp-two-col') || build.querySelector('.cp-song')
-    if (target) {
-      target.style.fontSize = best.fontSize + 'px'
-      target.style.fontFamily = font
-    }
-    const content = build.innerHTML
-    document.body.removeChild(build)
-
-    const pageCSS = best.layout === 'landscape'
-      ? '@page { size: landscape; margin: 10mm; }'
-      : '@page { size: portrait; margin: 12mm; }'
-
-    const overrideCSS = `
-      ${pageCSS}
-      body { margin: 0; padding: 0; }
-      .cp-song, .cp-two-col { font-family: ${font} !important; font-size: ${best.fontSize}px !important; line-height: 1.3; }
-      .cp-line { padding-top: 1.1em; }
-      .cp-blank-clickable { cursor: default; }
-      .cp-blank.cp-page-break { border: none; margin: 0; padding: 0; page-break-after: always; break-after: page; }
-      .cp-blank.cp-page-break::after { display: none; }
-      .cp-two-col-row { break-inside: avoid; page-break-inside: avoid; }
-      .cp-col { overflow: hidden; }
-    `
+    // Strip CCLI from the source HTML
+    const tmp = document.createElement('div')
+    tmp.innerHTML = savedHTML
+    stripCCLI(tmp)
+    const cleanHTML = tmp.innerHTML
 
     const win = window.open('', '_blank')
-    win.document.write(`<html><head><style>${cssText}\n${overrideCSS}</style></head><body>${content}</body></html>`)
+    win.document.write(`<html><head>
+<style>
+${cssText}
+body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+.controls { position: fixed; top: 0; left: 0; right: 0; background: #f5f5f5; border-bottom: 1px solid #ccc; padding: 8px 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; z-index: 100; }
+.controls button { padding: 4px 12px; cursor: pointer; }
+.controls label { display: flex; align-items: center; gap: 4px; }
+#content { padding: 60px 20px 20px; }
+.cp-song, .cp-two-col { font-family: ${font} !important; line-height: 1.3; }
+.cp-line { padding-top: 1.1em; }
+.cp-blank-clickable { cursor: default; }
+.cp-blank.cp-page-break { border: none; margin: 0; padding: 0; }
+.cp-blank.cp-page-break::after { display: none; }
+.cp-two-col-row { break-inside: avoid; page-break-inside: avoid; }
+.cp-col { overflow: hidden; }
+@media print {
+  .controls { display: none !important; }
+  #content { padding: 0; }
+  .cp-blank.cp-page-break { page-break-after: always; break-after: page; }
+}
+</style>
+</head><body>
+<div class="controls">
+  <label>Size: <input type="range" id="size" min="10" max="36" value="${best.fontSize}" step="1"><span id="sizeLabel">${best.fontSize}px</span></label>
+  <label><input type="checkbox" id="twoCol" ${best.twoCol ? 'checked' : ''}> 2-up</label>
+  <label><input type="checkbox" id="landscape" ${best.layout === 'landscape' ? 'checked' : ''}> Landscape</label>
+  <button id="printBtn">Print</button>
+</div>
+<div id="content"></div>
+<script>
+const sourceHTML = ${JSON.stringify(cleanHTML)};
+const font = ${JSON.stringify(font)};
+
+function rebuild() {
+  const size = document.getElementById('size').value;
+  const twoCol = document.getElementById('twoCol').checked;
+  const landscape = document.getElementById('landscape').checked;
+  document.getElementById('sizeLabel').textContent = size + 'px';
+
+  const content = document.getElementById('content');
+  content.innerHTML = sourceHTML;
+  const el = content.querySelector('.cp-song') || content.querySelector('.cp-two-col');
+  if (el) el.style.fontFamily = font;
+
+  // Undo existing 2-col
+  const existing = content.querySelector('.cp-two-col');
+  if (existing) {
+    const orig = document.createElement('div');
+    orig.className = 'cp-song';
+    orig.style.fontFamily = existing.style.fontFamily;
+    existing.querySelectorAll('.cp-two-col-header > *').forEach(e => orig.appendChild(e));
+    [...existing.querySelectorAll('.cp-col')].forEach((col, i, arr) => {
+      [...col.children].forEach(e => orig.appendChild(e));
+      if (i < arr.length - 1) { const b = document.createElement('div'); b.className = 'cp-blank'; orig.appendChild(b); }
+    });
+    existing.replaceWith(orig);
+  }
+
+  if (twoCol) {
+    const song = content.querySelector('.cp-song');
+    if (song) {
+      const children = [...song.children];
+      const headerEls = children.filter(c => c.tagName === 'H1' || (c.tagName === 'P' && (c.classList.contains('cp-artist') || c.classList.contains('cp-meta'))));
+      const bodyEls = children.filter(c => !headerEls.includes(c));
+      if (bodyEls.length >= 4) {
+        const mid = Math.floor(bodyEls.length / 2);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'cp-two-col';
+        const header = document.createElement('div');
+        header.className = 'cp-two-col-header';
+        headerEls.forEach(e => header.appendChild(e));
+        wrapper.appendChild(header);
+        const row = document.createElement('div');
+        row.className = 'cp-two-col-row';
+        const left = document.createElement('div');
+        left.className = 'cp-col';
+        bodyEls.slice(0, mid).forEach(e => left.appendChild(e));
+        const right = document.createElement('div');
+        right.className = 'cp-col';
+        bodyEls.slice(mid).forEach(e => right.appendChild(e));
+        row.appendChild(left);
+        row.appendChild(right);
+        wrapper.appendChild(row);
+        song.replaceWith(wrapper);
+      }
+    }
+  }
+
+  const target = content.querySelector('.cp-two-col') || content.querySelector('.cp-song');
+  if (target) { target.style.fontSize = size + 'px'; target.style.fontFamily = font; }
+
+  // Update @page
+  let pageStyle = document.getElementById('pageStyle');
+  if (!pageStyle) { pageStyle = document.createElement('style'); pageStyle.id = 'pageStyle'; document.head.appendChild(pageStyle); }
+  pageStyle.textContent = '@page { size: ' + (landscape ? 'landscape' : 'portrait') + '; margin: 8mm; }';
+}
+
+document.getElementById('size').addEventListener('input', rebuild);
+document.getElementById('twoCol').addEventListener('change', rebuild);
+document.getElementById('landscape').addEventListener('change', rebuild);
+document.getElementById('printBtn').addEventListener('click', () => window.print());
+rebuild();
+<\/script>
+</body></html>`)
     win.document.close()
-    setTimeout(() => win.print(), 150)
 
     return best
   }

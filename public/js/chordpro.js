@@ -3,7 +3,6 @@ async function init() {
   const keySelect = document.getElementById('key-select')
   const output = document.getElementById('chord-output')
   const printBtn = document.getElementById('print-btn')
-  const twoColCheckbox = document.getElementById('two-col')
   const autoSizeCheckbox = document.getElementById('auto-size')
   const sizeSlider = document.getElementById('size-slider')
   const sizeLabel = document.getElementById('size-label')
@@ -17,17 +16,6 @@ async function init() {
     opt.value = f
     opt.textContent = f.replace(/\.(cho|chordpro|txt)$/, '')
     fileSelect.appendChild(opt)
-  }
-
-  function applyLayout() {
-    const twoCol = twoColCheckbox.checked
-    const result = ChordLayout.applyTwoCol(output, twoCol, () => {
-      if (autoSizeCheckbox.checked) runAutoSize()
-    })
-    if (result === false) {
-      twoColCheckbox.checked = false
-    }
-    if (autoSizeCheckbox.checked) runAutoSize()
   }
 
   function runAutoSize() {
@@ -50,11 +38,6 @@ async function init() {
       song.style.fontFamily = fontSelect.value
     }
 
-    if (twoColCheckbox.checked) {
-      const result = ChordLayout.applyTwoCol(output, true)
-      if (result === false) twoColCheckbox.checked = false
-    }
-
     if (autoSizeCheckbox.checked) {
       runAutoSize()
     }
@@ -71,17 +54,15 @@ async function init() {
     ChordLayout.printOptimized(cssText, output, font)
   })
 
-  twoColCheckbox.addEventListener('change', applyLayout)
-
   fontSelect.addEventListener('change', (e) => {
-    const target = output.querySelector('.cp-two-col') || output.querySelector('.cp-song')
+    const target = output.querySelector('.cp-song')
     if (target) target.style.fontFamily = e.target.value
     if (autoSizeCheckbox.checked) runAutoSize()
   })
 
   sizeSlider.addEventListener('input', (e) => {
     autoSizeCheckbox.checked = false
-    const target = output.querySelector('.cp-two-col') || output.querySelector('.cp-song')
+    const target = output.querySelector('.cp-song')
     if (target) target.style.fontSize = e.target.value + 'px'
     sizeLabel.textContent = e.target.value + 'px'
   })
