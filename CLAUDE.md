@@ -27,6 +27,8 @@ npm run db:migrate   # run Drizzle migrations
 npm run sync         # pull latest data from Google Sheets into SQLite
 ```
 
+Entry point is `src/server.ts` (not `src/index.ts`).
+
 ## API Endpoints
 
 - `GET /api/songs` — all songs
@@ -114,6 +116,39 @@ User places SongSelect downloads in the project's `downloads/` directory. When p
 - Copy lead sheet PDFs to `data/sheets/`
 - Update the DB: `UPDATE songs SET chordpro_file='filename.txt', sheet_pdf='filename.pdf', songselect_url='https://...', default_key='C' WHERE id=N`
 
+## Print layout system
+
+The print system lives in `public/js/chord-layout.js` and is used by both the Chord Sheets page (`chordpro.html`) and the Plan page (`plan.html`).
+
+### How printing works
+Clicking Print opens a **live preview window** with controls (font size slider, 2-up toggle, landscape toggle, Print button). The optimizer picks a starting layout, but the user can override everything before printing.
+
+### Layout optimizer heuristics (in `optimizeForPrint`)
+1. **Prefer landscape 2-up** if chord lines fit columns without overflow (maximizes page space)
+2. **Fall back to portrait single-column** if chord lines are too wide for 2-up columns
+3. **Font size**: finds the largest that fits vertically, then steps down until no horizontal overflow
+4. **CCLI footer is stripped** from print output (saves significant vertical space)
+5. **Overflow detection**: temporarily sets `white-space: nowrap` on chord lines and checks `scrollWidth > parentWidth`
+
+### Key constraints for chord sheet layout
+- Chord lines use `white-space: nowrap` — they CANNOT wrap (wrapping causes chords to overlap lyrics below due to `position: absolute` on `.cp-chord`)
+- Print page dimensions are estimates and will never perfectly match every browser/printer combo — that's why we give the user a live preview with manual override
+- Don't try to guess exact pixel dimensions for print — Chrome's print rendering varies. Provide reasonable defaults and let the user adjust
+- The measurement container must be attached to the DOM (not just `createElement`) or `getBoundingClientRect()` returns zeros
+- Print spacing uses tighter values than screen: `line-height: 1.3`, `padding-top: 1.1em` on `.cp-line`
+
+### Architecture
+- `chord-layout.js` — shared layout logic (IIFE exposing `ChordLayout` global). Used by both pages and the PDF export
+- `chordpro.js` — Chord Sheets page controller (song selection, transpose, print)
+- `plan.js` — Plan page controller (includes chord viewer with per-song display prefs, manual page breaks, source editor)
+- `chordpro.css` — all chord sheet styling including `@media print` rules
+
+### Common pitfalls (lessons from this session)
+- `autoFitTwoCol` must measure total height including the header, not just rows
+- The 2-col split puts header elements (title/artist/key) above both columns — don't include them in the content split
+- When testing overflow, chord-only lines (`.cp-line` with `.cp-chord` children) are what matter — CCLI text lines without chords can safely clip
+- `applyTwoCol` returns `false` if content is too short to split — check this before measuring
+
 ## Project conventions
 
 - No semicolons in TypeScript
@@ -122,4 +157,6 @@ User places SongSelect downloads in the project's `downloads/` directory. When p
 - Keep files small and focused
 - Database lives at `data/selectsong.db`
 - ChordPro files stored in `data/chordpro/`
+- Lead sheet PDFs stored in `data/sheets/`
 - Secrets in `secrets/` (gitignored)
+- The `downloads/` directory is a staging area for new SongSelect files before they're copied to `data/`

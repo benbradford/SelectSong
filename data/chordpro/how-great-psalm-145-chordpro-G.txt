@@ -1,0 +1,67 @@
+{title: How Great (Psalm 145)}
+{artist: Bob Kauflin, Jordan Kauflin, Nathan Stiff}
+{subtitle:  (based on the recording by Sovereign Grace Music)}
+{key: G}
+{tempo: 134}
+{time: 4/4}  
+{ccli_license: 163300}
+{ccli: 7190356}
+{copyright: 2021 Sovereign Grace Praise | Sovereign Grace Worship}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[||:] [G]            [|] [G]            [|] [G]            [|] [G]            [:||] 
+
+{comment: Verse 1}
+[G]  I'll bless Your name, O God, each [C/G]day that I a - [G]wake
+[C/G]  From dawn to setting sun, Your [D/G]greatness I'll pro - [G]claim
+[D]  Your glory [Em]far exceeds    [Gmaj7/B]  all human [C]thought
+[D]  So with each [G]breath I'll bless Your [C]name, O God
+
+{comment: Verse 2}
+[G]  Your name will be revered by [C/G]children yet to [G]come
+[C]  As generations sing of [D/F#]wonders You have [G]done
+[D]  Your strong and [Em]mighty deeds    [Gmaj7/B]  are always [C]near
+[D]  O God Most [G]High, Your name will [C]be revered
+
+{comment: Chorus 1a}
+[G]    How [C]great is the [G/D]Lord, and [D]greatly to be [Em]praised
+How [C]great is the [G]Lord our [D]God!, [G/B]    How [C]great is the [G/D]Lord 
+(1.)  And [D]greatly to be [G]praised  (to Turnaround 1)
+(2.)  And [D]greatly to be [Em]praised  (to Turnaround 2)
+
+{comment: Turnaround 1}
+[|] [G]            [|] [G]            [|]
+
+{comment: Turnaround 2}
+[|] [Em]          [|] [Em]          [|] [C]            [|] [C]            [|] 
+[|] [G/B]         [|] [G/B]        [|] [C]            [|] [C]            [|] 
+
+{comment: Verse 3}
+[G]  Your gracious hand provides for [C/G]all who live and [G]breathe
+[C]  Your mercy runs to find the helpless and the weak
+[D]  When we call [Em]out to You,    [Gmaj7/B]  You hear our [C]cries
+[D]  And all our [G]needs Your gracious [C]hand [D]pro - [C/E]vides    [D/F#]
+
+{comment: Verse 4}
+[G]  Forever without end, creation will rejoice
+[C]  When works of wicked men You finally destroy
+[D]  Your power we'll proclaim    [Gmaj7/B]  till Christ des - [C]cends
+[D/F#]  And You will [G]reign forever [C]with - [D]out  [C/E]end    [D/F#]
+
+{comment: Chorus 1b}
+[G]    How [C]great is the [G]Lord, and [D]greatly to be [Em]praised
+How [C]great is the [G]Lord our [D]God!
+[G/B]    How [C]great is the [G]Lord and [D]greatly to be [G]praised!
+
+{comment: Ending}
+[|] [G](praised!)      [|] [G]                [|] 
+[|] [G]         And  [|] [C/G]greatly to be [|] [G]praised!          [|] 
+[|] [G]                 [|] [Em]   [D/F#]  [G]  [|] [G]  [C]       [|] 
+
+
+CCLI Song # 7190356
+© 2021 Sovereign Grace Praise | Sovereign Grace Worship
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction Licence.  Please report all copies.
+CCLI Licence No. 163300

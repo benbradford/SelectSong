@@ -1,0 +1,63 @@
+{title: Great Things}
+{artist: Phil Wickham, Jonas Myrin}
+{subtitle: (based on the recording by Phil Wickham | original key - B)}
+{key: G}
+{tempo: 102}
+{time: 4/4}
+{ccli_license: 163300}
+{ccli: 7111321}
+{copyright: 2018 Phil Wickham Music | Simply Global Songs | Sing My Songs | Capitol CMG Paragon | Son of the Lion}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: INTRO}
+[||:] [G]           [|] [G]    [Am7]    [|] [Em7]          [|] [Em7]    [C2]    [:||] 
+
+{comment: VERSE 1}
+[G]Come let us [Gsus]worship our [G]King
+[G]Come let us [Gsus]bow at His [G]feet
+He has done [Cmaj9]great things
+[G]See what our [Gsus]Savior has [G]done
+[G]See how His [Gsus]love over - [G]comes
+He has done [Cmaj9]great things
+He has done [Em7]great things [Dsus]
+
+{comment: CHORUS}
+O [G]Hero of Heaven You conquered the grave
+You [Em7]free every captive and break every chain
+O [C]God You have done great things
+We [G]dance in Your freedom awake and alive
+O [Em7]Jesus our Savior Your name lifted high
+O [C]God You have done great things    [(G)]  (To Bridge)  
+
+{comment: TURNAROUND}
+[||:] [G]           [|] [G]    [Am7]    [|] [Em7]          [|] [Em7]    [C2]    [:||] 
+
+{comment: VERSE 2}
+You’ve been [G]faithful through [Gsus]every    [G]storm
+You’ll be [G]faithful for - [Gsus]ever  -  [G]more
+You have done [Cmaj9]great things
+And I [G]know You will [Gsus]do it a - [G]gain
+For Your [G]promise is [Gsus]Yes and A - [G]men
+You will do [Cmaj9]great things
+God You do [Em7]great things [Dsus]   (To Chorus)
+
+{comment: BRIDGE}
+[C2]Hallelujah     [D(4)]God above it all
+[Em7]Hallelujah     [Gmaj7/B]God unshakable
+[C2]Hallelujah     [D(4)]You have done great things
+(1.) [|] [Em7]         [|] [Gmaj7/B]     [|] (To Bridge)
+(2.) [Em7]    You’ve done great [Dsus/F#]things   (To Chorus) 
+
+{comment: ENDING}
+[D(4)]  You have done [Em7]great things
+[D(4)]  O God You do [C]great things
+
+{comment: OUTRO}
+[||:] [G]           [|] [G]    [Am7]    [|] [Em7]          [|] [Em7]    [C2]    [:||] 
+
+
+CCLI Song # 7111321
+© 2018 Phil Wickham Music | Simply Global Songs | Sing My Songs | Capitol CMG Paragon | Son of the Lion
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction Licence.  Please report all copies.
+CCLI Licence No. 163300
