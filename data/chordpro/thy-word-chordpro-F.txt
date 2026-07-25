@@ -1,0 +1,34 @@
+{title: Thy Word}
+{artist: Amy Grant, Michael W. Smith}
+{key: F}
+{time: 4/4}
+{tempo: 70}
+{ccli_license: 163300}
+{ccli: 14301}
+{copyright: 1984 Curb Word Music | Meadowgreen Music Company}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Chorus}
+[F]Thy Word is a [C/E]lamp unto my [F]feet 
+And a [Bb/D]light un - [C]to my [F]path 
+[F]Thy Word is a [C/E]lamp unto my [F]feet 
+And a [Bb/D]light un - [C]to my [F]path 
+
+{comment: Verse 1}
+[C]When I feel a - [Gm]fraid and I [Dm]think I’ve lost my [Am]way 
+[Bb]Still You’re [C]there right be - [Bb/F]side   [F]me 
+[C]Nothing will I [Gm]fear as [Dm]long as You are [Am]near 
+[Bb]Please be [C]near me [C/D]to    [D]the end         [Csus]   [C]
+
+{comment: Verse 2}
+[C]I will not for - [Gm]get Your [Dm]love for me and [Am]yet 
+My [Bb]heart for - [C]ever is [Bb/F]wander - [F]ing 
+[C]Jesus be my [Gm]guide and [Dm]hold me to Your [Am]side 
+[Bb]I will [C]love You [C/D]to    [D]the end         [Csus]   [C]
+
+
+CCLI Song # 14301
+© 1984 Curb Word Music | Meadowgreen Music Company
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction Licence.  Please report all copies.
+CCLI Licence No. 163300

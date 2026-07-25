@@ -14,7 +14,12 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 app.use(express.json())
-app.use(express.static(resolve(import.meta.dirname, '../public')))
+// Local single-user tool: never cache static assets so JS/CSS edits show up on plain reload.
+app.use(express.static(resolve(import.meta.dirname, '../public'), {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res) => res.setHeader('Cache-Control', 'no-store')
+}))
 app.use('/sheets', express.static(resolve(import.meta.dirname, '../data/sheets')))
 
 app.use('/api/songs', songsRouter)

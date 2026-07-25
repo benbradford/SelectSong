@@ -65,6 +65,9 @@ When the user asks for song suggestions:
    ```
    Pass the target date as an argument. This outputs all songs sorted by days since last played, including any already-planned services that haven't hit the ledger yet.
 3. **Consider**: thematic fit, recency (prefer 6+ weeks since last played), hymn balance (1-2 per set), energy flow. Ask the user what they played today/recently if the ledger may not be up-to-date yet, so you don't suggest songs they just did.
+   - **All-age / family services**: when the theme says "all age" (or the user mentions kids/family), include 1-2 kids-friendly action songs (e.g. Colin Buchanan titles, "Jesus is the King" id 146) and lean away from slow/reflective worship songs — reflective songs can still work as pre-service. The user knows the congregation; if they say a song is kid-friendly, trust them.
+   - **Ledger can lag or miss plays**: `get-candidates.ts` recency comes from the synced Google Sheet, which sometimes never receives a service (e.g. "Jesus is the King" was played but never logged). Treat "never played" / large gaps with mild suspicion and confirm with the user rather than over-relying on the number.
+   - **Resolve similar/duplicate titles by CCLI number, not name**: several songs share hook phrases but are distinct (e.g. "Praise The Lord Forever" CCLI 7260101 vs "Let Everything That Has Breath" CCLI 2430979; "Jesus is the King" Paul Sheely CCLI 3991826 vs "Jesus Is The Mighty Mighty King" Colin Buchanan CCLI 2599982). When the user thinks two entries are the same song, compare `songselect_url`/CCLI (in the chordpro `{ccli:}` tag) and `service_entries.ccli_ref` to confirm before merging or assuming.
 4. **Present** ~5 recommendations + alternatives with ratings, positions, rationale
 5. **After agreement**, save the plan **once** (wait until the full set is confirmed — main songs, communion, and pre-service — before calling save-plan). Each call creates a new row, so avoid saving multiple times during iteration:
    ```bash
@@ -77,7 +80,14 @@ When the user asks for song suggestions:
    ```
 6. **Include justification notes** in the `notes` field for each main set song (positions 1-5) when saving/patching — these show in the plan.html UI
 7. **Report** which songs lack chordpro/PDF files — user will download from SongSelect
-7. User views the plan at `http://localhost:{PORT}/plan.html` (default port 3000)
+7. User views the plan at `http://localhost:{PORT}/plan.html` (this project runs on **port 4000** — see `PORT=4000` in `.env`; the code default is 3000 but the running server uses 4000)
+
+### Database schema quick reference (for direct `sqlite3 data/selectsong.db` queries)
+Authoritative source is `src/db/schema.ts`. Key tables/columns (don't guess these):
+- **`songs`**: `id, name, author, copyright, is_hymn, is_song, is_atn, recently_added, notes, first_line, themes, default_key, chordpro_file, excluded, excluded_reason, sheet_pdf, songselect_url`. Note: no `ccli` column on songs — CCLI lives in the chordpro file's `{ccli:}` tag and in `songselect_url`.
+- **`service_entries`** — this IS the ledger (historical plays). Columns: `id, date, song_name, first_line, music_leader, ccli_ref, song_id, position`. Flat `date` column — **no `services` join needed** and there is no `ledger_entries` or `service_id` column here. Filter by `date` directly, e.g. `WHERE date BETWEEN '2026-03-01' AND '2026-05-01'`.
+- **`planned_services`** (`id, date, theme, ...`) + **`planned_service_songs`** (`id, service_id, song_id, position, key, notes`) — these are saved plans. `planned_service_songs.service_id` references `planned_services.id` (not `planned_service_id`).
+- **`song_aliases`** (`id, song_id, alias`), **`services`**, **`song_display_prefs`**.
 
 ### Song matching notes
 - The `song_aliases` table maps ledger names to songlist names (e.g. "Waymaker" → "Way Maker", "Holy Spirit" → "Holy Spirit, living breath")

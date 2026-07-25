@@ -1,0 +1,30 @@
+{title: I Will Sing Your Praises}
+{artist: Ian Smale}
+{key: Em}
+{tempo: 132}
+{time: 4/4 }
+{ccli_license: 163300}
+{ccli: 58202}
+{copyright: 1984 Thankyou Music Ltd}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Verse}
+[Em]Father God I wonder how I [D]managed to exist 
+Without the [C]knowledge of Your parenthood 
+[D]And Your loving [B7]care 
+But [Em]now I am Your son, I am a - [D]dopted in Your family
+And [C]I can never be alone 
+'Cause [D]Father God You’re [B7]there beside me 
+
+{comment: Chorus}
+[Em]I  will   [C]sing Your praises, [D]I  will  [G]sing Your praises 
+[Em]I  will  [Am]sing Your praises [D]forever - [B7]more 
+[Em]I  will   [C]sing Your praises, [D]I  will  [G]sing Your praises 
+[Em]I  will   [Am]sing Your praises [D]forever - [Em]more 
+
+
+CCLI Song # 58202
+© 1984 Thankyou Music Ltd
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction Licence.  Please report all copies.
+CCLI Licence No. 163300

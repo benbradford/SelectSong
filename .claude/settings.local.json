@@ -58,7 +58,8 @@
       "mcp__npm__playwright_mcp__browser_console_messages",
       "mcp__npm__playwright_mcp__browser_evaluate",
       "mcp__npm__playwright_mcp__browser_tabs",
-      "mcp__npm__playwright_mcp__browser_snapshot"
+      "mcp__npm__playwright_mcp__browser_snapshot",
+      "Bash(head -25 \"data/chordpro/$\\(sqlite3 data/selectsong.db \"SELECT chordpro_file FROM songs WHERE id=139;\"\\)\")"
     ]
   },
   "disabledMcpjsonServers": [

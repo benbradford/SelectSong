@@ -1,0 +1,48 @@
+{title: Every Promise}
+{artist: Keith Getty, Stuart Townend}
+{key: D}
+{time: 3/4}
+{tempo: 88}
+{ccli_license: 163300}
+{ccli: 4642105}
+{copyright: 2005 Thankyou Music Ltd}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[G/D]From the [D]breaking   [G/D]of the [D]dawn to the [G]set - [D/F#]ting   [Em]of the [A]sun
+[G/A]I will [D]stand on ev'ry [G]promise of [G/A]Your  [D5]word    [G/D]  [D5]
+[G/D]Words of [D]power   [G/D]strong to [D]save that will [G]nev - [D/F#]er   [Em]pass a - [A]way
+[G/A]I will [D]stand on ev'ry [G]promise of [G/A]Your  [D5]word    [G/D]  [D5]
+[D/F#]For Your [G]covenant is [F#m]sure    [Bm7]and on [Em]this I [G]am  [G/B]se - [Asus]cure  [A]
+[G/A]I can [D]stand on ev'ry [G]promise from [G/A]Your  [D5]word    [G/D]  [D5]
+
+{comment: Verse 2}
+[G/D]When I [D]stumble   [G/D]and I [D]sin condem - [G]na - [D/F#]tion   [Em]pressing  [A]in
+[G/A]I will [D]stand on every [G]promise of [G/A]Your  [D5]word    [G/D]  [D5]
+[G/D]You are [D]faithful   [G/D]to for - [D]give that in [G]free - [D/F#]dom   [Em]I might [A]live
+[G/A]So I [D]stand on every [G]promise of [G/A]Your  [D5]word   [G/D]  [D5]
+[D/F#]Guilt to [G]innocence re - [F#m]stored    [Bm7]You re - [Em]member  [G]sins  [G/B]no   [Asus]more  [A]
+[G/A]So I'll [D]stand on every [G]promise of [G/A]Your  [D5]word    [G/D]  [D5]
+
+{comment: Verse 3}
+[G/D]When I'm [D]faced with [G/D]anguished [D]choice I will [G]lis - [D/F#]ten   [Em]for Your [A]voice
+[G/A]And I'll [D]stand on every [G]promise of [G/A]Your  [D5]word    [G/D]  [D5]
+[G/D]Through this [D]dark and [G/D]troubled [D]land You will [G]guide [D/F#]me   [Em]with Your [A]hand
+[G/A]As I [D]stand on every [G]promise of [G/A]Your  [D5]word    [G/D]  [D5]
+[D/F#]And You've [G]promised to com - [F#m]plete    [Bm7]every  [Em]work be - [G]gun  [G/B]in   [Asus]me  [A]
+[G/A]So I'll [D]stand on every [G]promise of [G/A]Your  [D5]word    [G/D]  [D5]
+
+{comment: Verse 4}
+[G/D]Hope that [D]lifts me [G/D]from de - [D]spair love that [G]casts  [D/F#]out   [Em]every  [A]fear
+[G/A]As I [D]stand on every [G]promise of [G/A]Your  [D5]word    [G/D]  [D5]
+[G/D]Not for - [D]saken   [G/D]not a - [D]lone for the [G]Com - [D/F#]fort - [Em]er has [A]come
+[G/A]And I [D]stand on every [G]promise of [G/A]Your  [D5]word    [G/D]  [D5]
+[D/F#]Grace suf - [G]ficient grace for [F#m]me    [Bm7]grace for [Em]all who [G]will  [G/B]be - [Asus]lieve  [A]
+[G/A]We will [D]stand on every [G]promise of [G/A]Your  [D5]word    [G/D]  [D5]
+
+
+CCLI Song # 4642105
+© 2005 Thankyou Music Ltd
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction Licence.  Please report all copies.
+CCLI Licence No. 163300

@@ -373,7 +373,11 @@ body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
 .controls { position: fixed; top: 0; left: 0; right: 0; background: #f5f5f5; border-bottom: 1px solid #ccc; padding: 8px 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; z-index: 100; }
 .controls button { padding: 4px 12px; cursor: pointer; }
 .controls label { display: flex; align-items: center; gap: 4px; }
-#content { padding: 60px 20px 20px; }
+/* Grey preview area with a visible white "page" whose shape reflects orientation. */
+#preview { padding: 60px 20px 20px; background: #e0e0e0; min-height: 100vh; box-sizing: border-box; }
+#sheet { background: #fff; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.2); box-sizing: border-box; padding: 16px; width: 715px; min-height: 1047px; }
+#sheet.landscape { width: 1060px; min-height: 730px; }
+#content { }
 .cp-song, .cp-two-col { font-family: ${font} !important; line-height: 1.3; }
 .cp-line { padding-top: 1.1em; }
 .cp-blank-clickable { cursor: default; }
@@ -383,6 +387,8 @@ body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
 .cp-col { overflow: hidden; }
 @media print {
   .controls { display: none !important; }
+  #preview { padding: 0; background: none; min-height: 0; }
+  #sheet, #sheet.landscape { width: auto; box-shadow: none; padding: 0; margin: 0; }
   #content { padding: 0; }
   .cp-blank.cp-page-break { page-break-after: always; break-after: page; }
 }
@@ -394,7 +400,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
   <label><input type="checkbox" id="landscape" ${best.layout === 'landscape' ? 'checked' : ''}> Landscape</label>
   <button id="printBtn">Print</button>
 </div>
-<div id="content"></div>
+<div id="preview"><div id="sheet"><div id="content"></div></div></div>
 <script>
 const sourceHTML = ${JSON.stringify(cleanHTML)};
 const font = ${JSON.stringify(font)};
@@ -457,7 +463,10 @@ function rebuild() {
   const target = content.querySelector('.cp-two-col') || content.querySelector('.cp-song');
   if (target) { target.style.fontSize = size + 'px'; target.style.fontFamily = font; }
 
-  // Update @page
+  // Reflect orientation in the on-screen preview sheet width...
+  document.getElementById('sheet').classList.toggle('landscape', landscape);
+
+  // ...and in the actual printed page.
   let pageStyle = document.getElementById('pageStyle');
   if (!pageStyle) { pageStyle = document.createElement('style'); pageStyle.id = 'pageStyle'; document.head.appendChild(pageStyle); }
   pageStyle.textContent = '@page { size: ' + (landscape ? 'landscape' : 'portrait') + '; margin: 8mm; }';
