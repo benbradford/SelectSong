@@ -1,0 +1,35 @@
+{title: This Little Light Of Mine}
+{artist: Traditional (Spiritual)}
+{key: G}
+{time: 4/4}
+{tempo: 120}
+{copyright: Public Domain}
+
+{comment: Chorus}
+[G]This little light of mine, I'm gonna let it [G7]shine.
+[C]This little light of mine, I'm gonna let it [G]shine.
+[G]This little light of mine, [G]I'm gonna [G/F#]let it [Em]shine,
+Let [Am]shine, let it [D]shine, let it [G]shine.
+
+{comment: Verse 1}
+[G]The light that shines is the light of love;
+[C]Lights the darkness [G]from above.
+[G]It shines on me and it shines on you,
+And [Am]shows what the power of [D]love can do.
+Gonna [G]shine my light both far and near,
+Gonna [C]shine my light both [A7]bright and clear.
+If [G]there's a dark [G/F#]corner [Em]in this land,
+I'm gonna [Am]let my [D]little light [G]shine.
+
+{comment: Verse 2}
+On [G]Monday, He gave me the gift of love;
+[C]Tuesday, peace came [G]from above.
+On [G]Wednesday he told me to have more faith;
+On [Am]Thursday He gave me a [D]little more grace.
+[G]Friday, He told me to watch and pray
+[C]Saturday, He told me just what to [A7]say,
+On [G]Sunday He [G/F#]gave me the [Em]power divine
+To [Am]let my [D]little light [G]shine.
+
+Traditional spiritual — Public Domain.
+Chords transcribed from a community chord chart (no SongSelect / CCLI entry).

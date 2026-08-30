@@ -107,12 +107,22 @@ tr:hover { background: #f0f7ff; }
   margin-bottom: 0.25rem;
   font-size: 0.9rem;
 }
-.form-group input {
+.form-group input,
+.form-group textarea {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
+}
+.form-group textarea {
+  font-family: inherit;
+  line-height: 1.4;
+  resize: vertical;
+}
+.label-hint {
+  font-weight: 400;
+  color: #666;
 }
 
 .hidden { display: none; }

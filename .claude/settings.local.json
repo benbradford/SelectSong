@@ -59,7 +59,16 @@
       "mcp__npm__playwright_mcp__browser_evaluate",
       "mcp__npm__playwright_mcp__browser_tabs",
       "mcp__npm__playwright_mcp__browser_snapshot",
-      "Bash(head -25 \"data/chordpro/$\\(sqlite3 data/selectsong.db \"SELECT chordpro_file FROM songs WHERE id=139;\"\\)\")"
+      "Bash(head -25 \"data/chordpro/$\\(sqlite3 data/selectsong.db \"SELECT chordpro_file FROM songs WHERE id=139;\"\\)\")",
+      "Bash(ps -p 11688 -o pid,lstart,command=)",
+      "Bash(git -C /Users/bebradfo/code/selectsong log --oneline -- src/routes/terminal.ts)",
+      "Bash(git *)",
+      "Bash(date -j -f %Y-%m-%d 2026-08-26 +%A)",
+      "Bash(date -j -f %Y-%m-%d 2026-08-16 +%A)",
+      "Bash(ps -eo pid,lstart,command)",
+      "Bash(ps -o pid,ppid,lstart,tty,command -p 28245)",
+      "Bash(/Users/bebradfo/.aim/packages/PVEPAICapabilities-1.0/eventId-6503885734/skills/insights-query/scripts/insights-query.sh 'with daily as \\( *)",
+      "Read(//Users/bebradfo/.aim/cc-plugins/PVEPAICapabilities-all/skills/insights-query/**)"
     ]
   },
   "disabledMcpjsonServers": [
