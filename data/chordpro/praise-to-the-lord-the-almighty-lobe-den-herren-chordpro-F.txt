@@ -1,0 +1,52 @@
+{title: Praise To The Lord The Almighty}
+{artist: Words by Joachim Neander, Translated by Catherine Winkworth, Music "Lobe den Herren"}
+{key: F}
+{tempo: 112}
+{time: 3/4 }
+{ccli_license: 163300}
+{ccli: 43073}
+{copyright: Words: Public Domain | Music: Public Domain}
+{footer: For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[F]Praise to the [Dm7]Lord the Al - [Am]mighty The [Bb]King of cre - [C]a - [F]tion
+[F]O my soul [Dm7]praise Him For [Am]He is thy [Bb]health and salv - [C]a - [F]tion
+[F]All ye who [Bb]hear [Dm]now to His temple draw [C]near
+[F/A]Praise Him in [Bb]glad ado - [C]ra - [F]tion
+
+{comment: Verse 2}
+[F]Praise to the [Dm7]Lord Who o're [Am]all things So [Bb]wondrously [C]reign - [F]eth
+[F]Shelters thee [Dm7]under His [Am]wings Yea [Bb]so gently sus - [C]tain - [F]eth
+[F]Hast thou not [Bb]seen [Dm]how thy desires e'er have [C]been
+[F/A]Granted in [Bb]what He or - [C]dain - [F]eth
+
+{comment: Verse 3}
+[F]Praise to the [Dm7]Lord Who doth [Am]prosper Thy [Bb]work and de - [C]fend [F]thee
+[F]Surely His [Dm7]goodness and [Am]mercy here [Bb]daily at - [C]tend [F]thee
+[F]Ponder a - [Bb]new [Dm]what the Almighty can [C]do
+[F/A]If with His [Bb]love He be - [C]friend [F]thee
+
+{comment: Verse 4}
+[F]Praise to the [Dm7]Lord Who When [Am]tempests their [Bb]warfare are [C]wag - [F]ing
+[F]Who when the [Dm7]elements [Am]madly a - [Bb]round thee are [C]rag - [F]ing
+[F]Biddeth them [Bb]cease [Dm]turneth their fury to [C]peace
+[F/A]Whirlwinds and [Bb]waters as - [C]suag - [F]ing
+
+{comment: Verse 5}
+[F]Praise to the [Dm7]Lord Who When [Am]darkness of [Bb]sin is a - [C]bound - [F]ing
+[F]Who when the [Dm7]godless do [Am]triumph All [Bb]virtue con - [C]found - [F]ing
+[F]Sheddeth His [Bb]light [Dm]chaseth the horrors of [C]night
+[F/A]Saints with His [Bb]mercy sur - [C]round - [F]ing
+
+{comment: Verse 6}
+[F]Praise to the [Dm7]Lord O let [Am]all that is [Bb]in me a - [C]dore [F]Him
+[F]All that hath [Dm7]life and breath [Am]Come now with [Bb]praises be - [C]fore [F]Him
+[F]Let the a - [Bb]men [Dm]sound from His people a - [C]gain
+[F/A]Gladly for [Bb]all we a - [C]dore [F]Him
+
+
+
+CCLI Song # 43073
+© Words: Public Domain | Music: Public Domain
+For use solely with the SongSelect® Terms of Use.  All rights reserved. www.ccli.com
+CCLI Licence No. 163300

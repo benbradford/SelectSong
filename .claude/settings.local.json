@@ -68,7 +68,10 @@
       "Bash(ps -eo pid,lstart,command)",
       "Bash(ps -o pid,ppid,lstart,tty,command -p 28245)",
       "Bash(/Users/bebradfo/.aim/packages/PVEPAICapabilities-1.0/eventId-6503885734/skills/insights-query/scripts/insights-query.sh 'with daily as \\( *)",
-      "Read(//Users/bebradfo/.aim/cc-plugins/PVEPAICapabilities-all/skills/insights-query/**)"
+      "Read(//Users/bebradfo/.aim/cc-plugins/PVEPAICapabilities-all/skills/insights-query/**)",
+      "Bash(date -j -f \"%Y-%m-%d\" 2026-09-06 +\"%Y-%m-%d is a %A\")",
+      "WebFetch(domain:duckduckgo.com)",
+      "WebFetch(domain:html.duckduckgo.com)"
     ]
   },
   "disabledMcpjsonServers": [

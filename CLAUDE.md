@@ -58,15 +58,21 @@ Copy `.env.example` to `.env` and fill in:
 
 When the user asks for song suggestions:
 
-1. **Sync the ledger** first: `npx tsx src/scripts/sync.ts` (pulls latest from Google Sheets)
+0. **Ask for anything missing — don't infer it.** If the user hasn't given the service **date**, ask. Never guess it from the previous service, "the following week", or any other pattern; a wrong date silently saves the plan to the wrong Sunday. The same goes for other facts that change the set: whether there's **communion**, whether it's an **all-age** service, and the **theme/passage** if not stated. Stating an assumption out loud is not a substitute for asking.
+1. **Sync the ledger**: `npx tsx src/scripts/sync.ts` (pulls latest from Google Sheets)
 2. **Get all song candidates** with recency data (includes planned services as "recently played"):
    ```bash
    npx tsx src/scripts/get-candidates.ts 2026-05-31
    ```
    Pass the target date as an argument. This outputs all songs sorted by days since last played, including any already-planned services that haven't hit the ledger yet.
-3. **Consider**: thematic fit, recency (prefer 6+ weeks since last played), hymn balance (1-2 per set), energy flow. Ask the user what they played today/recently if the ledger may not be up-to-date yet, so you don't suggest songs they just did.
+3. **Consider**: thematic fit first, then hymn balance (1-2 per set), energy flow, and recency. Ask the user what they played today/recently if the ledger may not be up-to-date yet, so you don't suggest songs they just did.
+   - **Recency is a tie-breaker, not a filter**: thematic fit wins. Don't reject a song that genuinely fits the passage just because it was played fairly recently, and don't reach for a weak-fitting song only because it's been rested a long time. There is no minimum gap to enforce.
+     - Avoid repeating the *same* song in back-to-back weeks as a general habit, but the odd song appearing two Sundays running is fine — say so and move on rather than treating it as a problem.
+     - Avoid repeating a whole set or most of one from the previous few weeks — variety across the set matters more than the gap on any single song.
+     - Use recency to choose between songs that fit the theme about equally well, and to spot songs that have been rested a long time and are worth bringing back.
+     - Don't lead the recommendation table with weeks-since-last-played or justify picks primarily on recency. Lead with why the song fits the passage.
    - **All-age / family services**: when the theme says "all age" (or the user mentions kids/family), include 1-2 kids-friendly action songs (e.g. Colin Buchanan titles, "Jesus is the King" id 146) and lean away from slow/reflective worship songs — reflective songs can still work as pre-service. The user knows the congregation; if they say a song is kid-friendly, trust them.
-   - **Ledger can lag or miss plays**: `get-candidates.ts` recency comes from the synced Google Sheet, which sometimes never receives a service (e.g. "Jesus is the King" was played but never logged). Treat "never played" / large gaps with mild suspicion and confirm with the user rather than over-relying on the number.
+   - **Ledger can lag or miss plays**: `get-candidates.ts` recency comes from the synced Google Sheet, which sometimes never receives a service, and unmatched ledger names (see `song_aliases`) can make a played song look never-played. Another reason not to lean hard on the numbers — treat "never played" / large gaps as rough signals and confirm with the user rather than presenting them as fact.
    - **Resolve similar/duplicate titles by CCLI number, not name**: several songs share hook phrases but are distinct (e.g. "Praise The Lord Forever" CCLI 7260101 vs "Let Everything That Has Breath" CCLI 2430979; "Jesus is the King" Paul Sheely CCLI 3991826 vs "Jesus Is The Mighty Mighty King" Colin Buchanan CCLI 2599982). When the user thinks two entries are the same song, compare `songselect_url`/CCLI (in the chordpro `{ccli:}` tag) and `service_entries.ccli_ref` to confirm before merging or assuming.
 4. **Present** ~5 recommendations + alternatives with ratings, positions, rationale
 5. **After agreement**, save the plan **once** (wait until the full set is confirmed — main songs, communion, and pre-service — before calling save-plan). Each call creates a new row, so avoid saving multiple times during iteration:

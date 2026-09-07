@@ -14,7 +14,7 @@ const songs = db.prepare(`
 
 const aliases = db.prepare('SELECT song_id, alias FROM song_aliases').all() as { song_id: number; alias: string }[]
 
-const entries = db.prepare('SELECT song_name, date FROM service_entries ORDER BY date DESC').all() as { song_name: string; date: string }[]
+const entries = db.prepare('SELECT song_name, date, song_id FROM service_entries ORDER BY date DESC').all() as { song_name: string; date: string; song_id: number | null }[]
 
 // Also get planned services not yet in the ledger
 const maxLedgerDate = db.prepare('SELECT MAX(date) as d FROM service_entries').get() as { d: string }
@@ -39,7 +39,7 @@ for (const a of aliases) {
 
 // Combine ledger entries with planned songs
 const allEntries = [
-  ...plannedSongs.map(p => ({ song_name: p.song_name, date: p.date })),
+  ...plannedSongs.map(p => ({ song_name: p.song_name, date: p.date, song_id: null })),
   ...entries,
 ]
 
@@ -48,9 +48,12 @@ const today = new Date(targetDate)
 const results = songs.map((song) => {
   const names = namesBySongId.get(song.id) || [song.name.toLowerCase()]
 
+  // An explicit song_id wins: some ledger names (e.g. 'Holy Spirit', 'To God Be
+  // The Glory') are shared by two different songs, so the name alone would
+  // credit the plays to both rows.
   const matchingEntries = allEntries.filter((e) => {
-    const ledgerName = e.song_name.toLowerCase()
-    return names.some((n) => ledgerName === n)
+    if (e.song_id !== null) return e.song_id === song.id
+    return names.some((n) => e.song_name.toLowerCase() === n)
   })
 
   const lastPlayed = matchingEntries[0]?.date ?? null
