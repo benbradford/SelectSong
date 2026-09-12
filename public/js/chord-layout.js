@@ -24,29 +24,53 @@
     }
   }
 
-  function applyTwoCol(contentEl, twoColEnabled, onUnapplied) {
+  function isHeaderEl(el) {
+    return (
+      el.tagName === 'H1' ||
+      (el.tagName === 'P' &&
+        (el.classList.contains('cp-artist') || el.classList.contains('cp-meta')))
+    )
+  }
+
+  // Turn a .cp-two-col wrapper back into a plain .cp-song.
+  // markBreaks re-inserts a page break where each column boundary was, so the
+  // interactive viewer keeps the user's column split when they untick 2-up.
+  function unapplyTwoCol(contentEl, markBreaks) {
     const existing = contentEl.querySelector('.cp-two-col')
-    if (existing) {
-      const origSong = document.createElement('div')
-      origSong.className = 'cp-song'
-      origSong.style.fontFamily = existing.style.fontFamily
-      origSong.style.fontSize = existing.style.fontSize
+    if (!existing) return false
 
-      existing.querySelectorAll('.cp-two-col-header > *').forEach((el) => {
-        origSong.appendChild(el)
-      })
+    const origSong = document.createElement('div')
+    origSong.className = 'cp-song'
+    origSong.style.fontFamily = existing.style.fontFamily
+    origSong.style.fontSize = existing.style.fontSize
 
-      const cols = [...existing.querySelectorAll('.cp-col')]
-      cols.forEach((col, colIdx) => {
-        ;[...col.children].forEach((el) => origSong.appendChild(el))
-        if (colIdx < cols.length - 1) {
-          const brk = document.createElement('div')
-          brk.className = 'cp-blank cp-page-break'
-          origSong.appendChild(brk)
-        }
-      })
+    existing.querySelectorAll('.cp-two-col-header > *').forEach((el) => {
+      origSong.appendChild(el)
+    })
 
-      existing.replaceWith(origSong)
+    const cols = [...existing.querySelectorAll('.cp-col')]
+    cols.forEach((col, colIdx) => {
+      ;[...col.children].forEach((el) => origSong.appendChild(el))
+      if (markBreaks && colIdx < cols.length - 1) {
+        const brk = document.createElement('div')
+        brk.className = 'cp-blank cp-page-break'
+        origSong.appendChild(brk)
+      }
+    })
+
+    existing.replaceWith(origSong)
+    return true
+  }
+
+  // Drop every page break marker (manual or auto) inside a container.
+  function clearPageBreaks(containerEl) {
+    containerEl.querySelectorAll('.cp-page-break').forEach((el) => {
+      el.classList.remove('cp-page-break', 'cp-auto-break')
+    })
+  }
+
+  function applyTwoCol(contentEl, twoColEnabled, onUnapplied) {
+    if (unapplyTwoCol(contentEl, true)) {
       if (!twoColEnabled) {
         if (onUnapplied) onUnapplied()
         return
@@ -128,6 +152,103 @@
 
     song.replaceWith(wrapper)
     return true
+  }
+
+  // Flow the song into columns for printing, two columns per printed page.
+  //
+  // Unlike applyTwoCol — which splits at existing page breaks and so can leave a
+  // "page-break-after: always" marker sitting inside a column, tearing the page
+  // in half — this drops all breaks and measures each section at the real column
+  // width, filling one column at a time up to pageHeight. Extra printed pages
+  // become extra rows instead of content being clipped by .cp-col's overflow.
+  //
+  // Returns the number of rows (printed pages), or false if there is too little
+  // content to split.
+  function buildTwoColFlow(contentEl, pageHeight, fontSize) {
+    const PAGE_HEIGHT = pageHeight || LANDSCAPE_HEIGHT
+    unapplyTwoCol(contentEl, false)
+
+    const song = contentEl.querySelector('.cp-song')
+    if (!song) return false
+    clearPageBreaks(song)
+
+    const children = [...song.children]
+    const headerEls = children.filter(isHeaderEl)
+    const bodyEls = children.filter((el) => !isHeaderEl(el))
+    if (bodyEls.length < 4) return false
+
+    const wrapper = document.createElement('div')
+    wrapper.className = 'cp-two-col'
+    wrapper.style.fontFamily = song.style.fontFamily
+    wrapper.style.fontSize =
+      (fontSize || parseFloat(song.style.fontSize) || TARGET_SIZE) + 'px'
+
+    if (headerEls.length) {
+      const header = document.createElement('div')
+      header.className = 'cp-two-col-header'
+      for (const el of headerEls) header.appendChild(el)
+      wrapper.appendChild(header)
+    }
+
+    // Park everything in one column first so heights are measured at the width
+    // the sections will actually be printed at (a full-width measurement would
+    // under-report any line that wraps).
+    const measureRow = document.createElement('div')
+    measureRow.className = 'cp-two-col-row'
+    const measureCol = document.createElement('div')
+    measureCol.className = 'cp-col'
+    const filler = document.createElement('div')
+    filler.className = 'cp-col'
+    measureRow.appendChild(measureCol)
+    measureRow.appendChild(filler)
+    wrapper.appendChild(measureRow)
+    for (const el of bodyEls) measureCol.appendChild(el)
+
+    song.replaceWith(wrapper)
+
+    const header = wrapper.querySelector('.cp-two-col-header')
+    const headerHeight = header ? header.getBoundingClientRect().height : 0
+    const heights = bodyEls.map((el) => el.getBoundingClientRect().height)
+
+    // The header sits above both columns, so only the first page pays for it.
+    const cols = []
+    let col = []
+    let used = 0
+    let budget = PAGE_HEIGHT - headerHeight
+    for (let i = 0; i < bodyEls.length; i++) {
+      if (col.length && used + heights[i] > budget) {
+        cols.push(col)
+        col = []
+        used = 0
+        if (cols.length >= 2) budget = PAGE_HEIGHT
+      }
+      col.push(bodyEls[i])
+      used += heights[i]
+    }
+    if (col.length) cols.push(col)
+
+    measureRow.remove()
+
+    for (let i = 0; i < cols.length; i += 2) {
+      const row = document.createElement('div')
+      row.className = 'cp-two-col-row'
+
+      const left = document.createElement('div')
+      left.className = 'cp-col'
+      for (const el of cols[i]) left.appendChild(el)
+      row.appendChild(left)
+
+      // Always add the second column, empty if need be, so a lone trailing
+      // column keeps its half-page width rather than stretching across.
+      const right = document.createElement('div')
+      right.className = 'cp-col'
+      if (cols[i + 1]) for (const el of cols[i + 1]) right.appendChild(el)
+      row.appendChild(right)
+
+      wrapper.appendChild(row)
+    }
+
+    return Math.ceil(cols.length / 2)
   }
 
   function autoFitSize(contentEl, manualBreaksMode, pageHeight) {
@@ -287,8 +408,10 @@
   }
 
   // Determine the optimal print layout.
-  // Priority: 1) fewest pages, 2) largest font, 3) maximize space.
-  // 2-up rejected if chord lines overflow columns.
+  // Prefer landscape 2-up: on one page if it fits at a readable size, otherwise
+  // at TARGET_SIZE or the largest size whose chord lines don't overflow a column,
+  // spilling onto further pages. Falls back to portrait single-column if 2-up
+  // needs more pages or can't fit the chord lines.
   // Returns { layout: 'portrait'|'landscape', twoCol: boolean, fontSize: number, pages: number }
   function optimizeForPrint(contentEl) {
     const song = contentEl.querySelector('.cp-song') || contentEl.querySelector('.cp-two-col')
@@ -322,31 +445,35 @@
     const portraitSize = autoFitSize(measure, false, PORTRAIT_HEIGHT)
     const portraitPages = countPages()
 
-    // Test landscape 2-col — reduce font until no chord line overflow
+    // Test landscape 2-up. Two passes, largest font first:
+    //  1) big text (>= TARGET_SIZE) that still fits on a single page
+    //  2) otherwise TARGET_SIZE or below, over as many pages as it takes —
+    //     a readable sheet across two pages beats a one-page squint.
     setupMeasure(LANDSCAPE_WIDTH)
-    applyTwoCol(measure, false)
-    const applied = applyTwoCol(measure, true)
     let landscape2colSize = 0
     let landscape2colPages = 99
-    if (applied !== false) {
-      const maxSize = autoFitSize(measure, false, LANDSCAPE_HEIGHT)
-      for (let size = maxSize; size >= MIN_SIZE; size--) {
-        const target = measure.querySelector('.cp-two-col')
-        if (target) target.style.fontSize = size + 'px'
-        if (!hasHorizontalOverflow(measure)) {
-          landscape2colSize = size
-          landscape2colPages = 1
-          break
-        }
+    for (let size = MAX_SIZE; size >= MIN_SIZE; size--) {
+      const rows = buildTwoColFlow(measure, LANDSCAPE_HEIGHT, size)
+      if (rows === false) break
+      if (hasHorizontalOverflow(measure)) continue
+      if (rows === 1 || size <= TARGET_SIZE) {
+        landscape2colSize = size
+        landscape2colPages = rows
+        break
       }
     }
 
     document.body.removeChild(measure)
 
-    // Prefer landscape 2-up if it fits on 1 page without overflow.
-    // It uses page space most efficiently. Fall back to portrait otherwise.
-    if (landscape2colSize >= MIN_SIZE && landscape2colPages === 1) {
-      return { layout: 'landscape', twoCol: true, fontSize: landscape2colSize, pages: 1 }
+    // Prefer landscape 2-up when it doesn't cost extra pages — it uses the page
+    // space most efficiently. Fall back to portrait otherwise.
+    if (landscape2colSize >= MIN_SIZE && landscape2colPages <= portraitPages) {
+      return {
+        layout: 'landscape',
+        twoCol: true,
+        fontSize: landscape2colSize,
+        pages: landscape2colPages,
+      }
     }
 
     return { layout: 'portrait', twoCol: false, fontSize: portraitSize, pages: portraitPages }
@@ -359,10 +486,14 @@
     const savedHTML = contentEl.innerHTML
     const best = optimizeForPrint(contentEl)
 
-    // Strip CCLI from the source HTML
+    // Strip CCLI from the source HTML, and drop the auto-breaks the on-screen
+    // viewer inserted — those were fitted to the screen, not to the printed page.
     const tmp = document.createElement('div')
     tmp.innerHTML = savedHTML
     stripCCLI(tmp)
+    tmp.querySelectorAll('.cp-blank.cp-auto-break').forEach((el) => {
+      el.classList.remove('cp-page-break', 'cp-auto-break')
+    })
     const cleanHTML = tmp.innerHTML
 
     const win = window.open('', '_blank')
@@ -384,13 +515,16 @@ body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
 .cp-blank.cp-page-break { border: none; margin: 0; padding: 0; }
 .cp-blank.cp-page-break::after { display: none; }
 .cp-two-col-row { break-inside: avoid; page-break-inside: avoid; }
-.cp-col { overflow: hidden; }
+/* Clip sideways only — clipping vertically would silently swallow content. */
+.cp-col { overflow-x: clip; overflow-y: visible; }
 @media print {
   .controls { display: none !important; }
   #preview { padding: 0; background: none; min-height: 0; }
   #sheet, #sheet.landscape { width: auto; box-shadow: none; padding: 0; margin: 0; }
   #content { padding: 0; }
   .cp-blank.cp-page-break { page-break-after: always; break-after: page; }
+  /* Each row of columns is one printed page. */
+  .cp-two-col-row + .cp-two-col-row { break-before: page; page-break-before: always; }
 }
 </style>
 </head><body>
@@ -401,6 +535,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
   <button id="printBtn">Print</button>
 </div>
 <div id="preview"><div id="sheet"><div id="content"></div></div></div>
+<script src="${location.origin}/js/chord-layout.js"><\/script>
 <script>
 const sourceHTML = ${JSON.stringify(cleanHTML)};
 const font = ${JSON.stringify(font)};
@@ -411,60 +546,21 @@ function rebuild() {
   const landscape = document.getElementById('landscape').checked;
   document.getElementById('sizeLabel').textContent = size + 'px';
 
+  // Reflect orientation in the on-screen preview sheet width before measuring...
+  document.getElementById('sheet').classList.toggle('landscape', landscape);
+
   const content = document.getElementById('content');
   content.innerHTML = sourceHTML;
-  const el = content.querySelector('.cp-song') || content.querySelector('.cp-two-col');
-  if (el) el.style.fontFamily = font;
-
-  // Undo existing 2-col
-  const existing = content.querySelector('.cp-two-col');
-  if (existing) {
-    const orig = document.createElement('div');
-    orig.className = 'cp-song';
-    orig.style.fontFamily = existing.style.fontFamily;
-    existing.querySelectorAll('.cp-two-col-header > *').forEach(e => orig.appendChild(e));
-    [...existing.querySelectorAll('.cp-col')].forEach((col, i, arr) => {
-      [...col.children].forEach(e => orig.appendChild(e));
-      if (i < arr.length - 1) { const b = document.createElement('div'); b.className = 'cp-blank'; orig.appendChild(b); }
-    });
-    existing.replaceWith(orig);
-  }
+  const el = content.querySelector('.cp-song');
+  if (el) { el.style.fontFamily = font; el.style.fontSize = size + 'px'; }
 
   if (twoCol) {
-    const song = content.querySelector('.cp-song');
-    if (song) {
-      const children = [...song.children];
-      const headerEls = children.filter(c => c.tagName === 'H1' || (c.tagName === 'P' && (c.classList.contains('cp-artist') || c.classList.contains('cp-meta'))));
-      const bodyEls = children.filter(c => !headerEls.includes(c));
-      if (bodyEls.length >= 4) {
-        const mid = Math.floor(bodyEls.length / 2);
-        const wrapper = document.createElement('div');
-        wrapper.className = 'cp-two-col';
-        const header = document.createElement('div');
-        header.className = 'cp-two-col-header';
-        headerEls.forEach(e => header.appendChild(e));
-        wrapper.appendChild(header);
-        const row = document.createElement('div');
-        row.className = 'cp-two-col-row';
-        const left = document.createElement('div');
-        left.className = 'cp-col';
-        bodyEls.slice(0, mid).forEach(e => left.appendChild(e));
-        const right = document.createElement('div');
-        right.className = 'cp-col';
-        bodyEls.slice(mid).forEach(e => right.appendChild(e));
-        row.appendChild(left);
-        row.appendChild(right);
-        wrapper.appendChild(row);
-        song.replaceWith(wrapper);
-      }
-    }
+    const pageHeight = landscape ? ChordLayout.LANDSCAPE_HEIGHT : ChordLayout.PORTRAIT_HEIGHT;
+    ChordLayout.buildTwoColFlow(content, pageHeight, Number(size));
   }
 
   const target = content.querySelector('.cp-two-col') || content.querySelector('.cp-song');
   if (target) { target.style.fontSize = size + 'px'; target.style.fontFamily = font; }
-
-  // Reflect orientation in the on-screen preview sheet width...
-  document.getElementById('sheet').classList.toggle('landscape', landscape);
 
   // ...and in the actual printed page.
   let pageStyle = document.getElementById('pageStyle');
@@ -487,6 +583,9 @@ rebuild();
   root.ChordLayout = {
     applyManualBreaks,
     applyTwoCol,
+    unapplyTwoCol,
+    buildTwoColFlow,
+    clearPageBreaks,
     autoFitSize,
     autoFitTwoCol,
     optimizeForPrint,

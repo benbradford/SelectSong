@@ -149,6 +149,11 @@
     break-inside: avoid;
     page-break-inside: avoid;
   }
+  /* Each row of columns is one printed page */
+  .cp-two-col-row + .cp-two-col-row {
+    break-before: page;
+    page-break-before: always;
+  }
 }
 
 .cp-two-col-header {
@@ -164,6 +169,8 @@
 .cp-two-col-row .cp-col {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
+  /* Clip sideways only — clipping vertically would silently swallow content */
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
