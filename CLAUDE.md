@@ -107,11 +107,11 @@ Hi [Vicar],
 
 Here are the songs for [date] ([theme] / [passage]):
 
-1. [Song]
-2. [Song]
-3. [Song]
-4. [Song]
-5. [Song]
+1. [Song] (CCLI [number])
+2. [Song] (CCLI [number])
+3. [Song] (CCLI [number])
+4. [Song] (CCLI [number])
+5. [Song] (CCLI [number])
 
 Reasoning:
 1. [one sentence reason]
@@ -125,6 +125,15 @@ Let me know if you'd like any changes.
 Ben
 ```
 Keep reasoning to ~10 words per song. Focus on thematic connection to the passage.
+
+**Always include the CCLI number for each song** so the vicar can look up the lyrics on SongSelect. There is no `ccli` column on `songs`, so look it up in this order:
+1. The `{ccli:}` tag in the song's chordpro file (`data/chordpro/<chordpro_file>`) — most reliable. Note `{ccli_license: 163300}` is the *church's* licence number, not the song's; don't confuse the two.
+2. The song number in `songs.songselect_url` (`.../songs/<ccli>/<slug>`) — should agree with the chordpro tag.
+3. `service_entries.ccli_ref` for that `song_id` — the fallback for songs with no chordpro file yet. Flag these as unverified, since they come from past ledger entries rather than a file.
+
+Never guess or recall a CCLI number from memory — if none of the three sources has it, say so rather than inventing one.
+
+**There are two email draft paths — keep them in sync.** This template is only for the draft written in chat. The **Email Draft** button on plan.html is generated independently by `public/js/plan.js` from the plan API response, so changing this template alone has no effect on the UI. The API resolves CCLI server-side via `resolveCcli` in `src/routes/plan.ts` and exposes it as `ccli` on each plan song.
 
 ### Adding new music files
 User places SongSelect downloads in the project's `downloads/` directory. When processing:

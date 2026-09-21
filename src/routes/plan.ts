@@ -30,6 +30,45 @@ interface PlanSongInput {
   notes?: string
 }
 
+const chordproDir = resolve(import.meta.dirname, '../../data/chordpro')
+
+// There is no ccli column on songs, so resolve it per song: the chordpro {ccli:}
+// tag is most reliable, then the song number in songselect_url, then the ledger's
+// ccli_ref for songs with no chordpro file yet.
+function resolveCcli(db: Database.Database, song: any): string | null {
+  if (song.chordpro_file) {
+    const path = resolve(chordproDir, song.chordpro_file)
+    if (existsSync(path)) {
+      // {ccli_license:} is the church's licence number, not the song's
+      const match = readFileSync(path, 'utf8').match(/\{ccli\s*:\s*(\d+)\s*\}/i)
+      if (match) return match[1]
+    }
+  }
+
+  const fromUrl = song.songselect_url?.match(/\/songs\/(\d+)/)
+  if (fromUrl) return fromUrl[1]
+
+  const entry = db.prepare(`
+    SELECT ccli_ref FROM service_entries
+    WHERE song_id = ? AND ccli_ref IS NOT NULL AND ccli_ref != ''
+    ORDER BY date DESC LIMIT 1
+  `).get(song.song_id) as { ccli_ref: string } | undefined
+
+  return entry?.ccli_ref || null
+}
+
+function loadPlanSongs(db: Database.Database, serviceId: number) {
+  const songs = db.prepare(`
+    SELECT pss.*, s.name, s.author, s.is_hymn, s.default_key, s.chordpro_file, s.sheet_pdf, s.songselect_url
+    FROM planned_service_songs pss
+    JOIN songs s ON s.id = pss.song_id
+    WHERE pss.service_id = ?
+    ORDER BY pss.position
+  `).all(serviceId) as any[]
+
+  return songs.map(s => ({ ...s, ccli: resolveCcli(db, s) }))
+}
+
 planRouter.get('/all', (req, res) => {
   const db = getDb()
   const archived = req.query.archived === '1'
@@ -92,13 +131,7 @@ planRouter.get('/latest', (_req, res) => {
     return res.json(null)
   }
 
-  const songs = db.prepare(`
-    SELECT pss.*, s.name, s.author, s.is_hymn, s.default_key, s.chordpro_file, s.sheet_pdf, s.songselect_url
-    FROM planned_service_songs pss
-    JOIN songs s ON s.id = pss.song_id
-    WHERE pss.service_id = ?
-    ORDER BY pss.position
-  `).all(service.id)
+  const songs = loadPlanSongs(db, service.id)
 
   db.close()
   res.json({ ...service, songs })
@@ -147,13 +180,7 @@ planRouter.get('/:id', (req, res) => {
     return res.status(404).json({ error: 'Not found' })
   }
 
-  const songs = db.prepare(`
-    SELECT pss.*, s.name, s.author, s.is_hymn, s.default_key, s.chordpro_file, s.sheet_pdf, s.songselect_url
-    FROM planned_service_songs pss
-    JOIN songs s ON s.id = pss.song_id
-    WHERE pss.service_id = ?
-    ORDER BY pss.position
-  `).all(service.id)
+  const songs = loadPlanSongs(db, service.id)
 
   db.close()
   res.json({ ...service, songs })
@@ -202,13 +229,7 @@ planRouter.patch('/:id/songs', (req, res) => {
     insert.run(serviceId, s.songId, s.position, s.key || null, s.notes || null)
   }
 
-  const updated = db.prepare(`
-    SELECT pss.*, s.name, s.author, s.is_hymn, s.default_key, s.chordpro_file, s.sheet_pdf, s.songselect_url
-    FROM planned_service_songs pss
-    JOIN songs s ON s.id = pss.song_id
-    WHERE pss.service_id = ?
-    ORDER BY pss.position
-  `).all(serviceId)
+  const updated = loadPlanSongs(db, serviceId)
 
   db.close()
   res.json({ songs: updated })

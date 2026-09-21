@@ -1,0 +1,36 @@
+{title: Great In Power}
+{artist: Russell Fragar}
+{key: C}
+{time: 4/4}
+{tempo: 120}
+{ccli_license: 163300}
+{ccli: 2582339}
+{copyright: 1998 Hillsong MP Songs}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[C]Praise Him you heavens and all that's above 
+[C]Praise Him you angels and heavenly hosts 
+[F]Let the whole earth [F/C]praise    [C]Him 
+
+{comment: Verse 2}
+[C]Praise Him the sun moon and bright shining stars 
+[C]Praise Him you heavens and waters and skies 
+[F]Let the whole earth [F/C]praise    [C]Him 
+
+{comment: Chorus}
+[C]Great    [Cmaj7]in    [C]pow  -  [Cmaj7]er    [Am]great    [Am9]in    [Am]glo  -  [Am9]ry 
+[F]Great in mercy [Am]King of [Am/G]Heav  -  [G]en 
+[C]Great    [Cmaj7]in    [C]bat  -  [Cmaj7]tle    [Am]great    [Am9]in    [Am]won  -  [Am9]der 
+(1.) [F]Great in Zion [Am]King over [C/G]all    [G] the [C]earth 
+(2.) [F]Great in Zion [Am]King over [C/G]all the [G]earth (To Ch.)
+
+{comment: Turnaround / Outro}
+[|] [C]           [|] [C]           [|] [C]           [|] [C]           [|] [(C)] (Last x)
+
+
+CCLI Song # 2582339
+© 1998 Hillsong MP Songs
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+Note: Reproduction of this sheet music requires a CCLI Music Reproduction License.  Please report all copies.
+CCLI License # 163300

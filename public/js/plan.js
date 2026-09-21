@@ -781,7 +781,9 @@ document.getElementById('email-draft-btn').addEventListener('click', () => {
   if (!currentPlan) return
 
   const mainSongs = currentPlan.songs.filter(s => s.position >= 1 && s.position < COMMUNION_OFFSET)
-  const songLines = mainSongs.map((s, i) => `${i + 1}. ${s.name}`).join('\n')
+  const songLines = mainSongs
+    .map((s, i) => `${i + 1}. ${s.name}${s.ccli ? ` (CCLI ${s.ccli})` : ''}`)
+    .join('\n')
   const reasonLines = mainSongs
     .filter(s => s.notes)
     .map((s, i) => `${i + 1}. ${s.notes}`)

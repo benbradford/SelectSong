@@ -1,0 +1,36 @@
+{title: Thine Be The Glory}
+{artist: Music: George Frideric Handel, Words: Edmond Louis Budry, Translation: Richard Birch Hoyle}
+{key: D}
+{time: 4/4}
+{ccli_license: 163300}
+{ccli: 21837}
+{copyright: Words: Public Domain | Music: Public Domain}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[D]Thine    [D/F#]be the [D]glo  -  [D/F#]ry    [A]risen    [A/C#]con - [D]qu’ring [A]Son
+[D]Endless   [D/F#]is   [A7/E]the   [D/F#]vict’ry    [A7/E]Thou   [D/F#]o’er   [A]death hast [D]won
+[D]Angels in bright [A7]rai  -  [Bm]ment    [A#°7/C#]rolled   [Bm/D]the   [Em]stone   [Bm]a - [F#]way
+[Bm]Kept the fold - [Bm/A]ed   [E7/G#]grave  -  [E7]clothes    [F#m]where  [D]Thy  [E7]body  [A]lay    [A7]
+
+{comment: Chorus}
+[D]Thine    [D/F#]be the [D]glo  -  [D/F#]ry    [A]risen    [A/C#]con - [D]qu’ring [A]Son
+[D]Endless   [D/F#]is   [A7/E]the   [D/F#]vict’ry    [A7/E]Thou   [D/F#]o’er   [A]death hast [D]won
+
+{comment: Verse 2}
+[D]Lo    [D/F#]Jesus    [D]meets    [D/F#]us    [A]risen    [A/C#]from   [D]the  [A]tomb
+[D]Loving  -  [D/F#]ly   [A7/E]He   [D/F#]greets us  [A7/E]scat - [D/F#]ters   [A]fear and [D]gloom
+[D]Let the church with [A7]glad  -  [Bm]ness    [A#°7/C#]Hymns   [Bm/D]of   [Em]tri - [Bm]umph [F#]sing
+[Bm]For her Lord [Bm/A]now   [E7/G#]liv  -  [E7]eth    [F#m]death  [D]hath [E7]lost its [A]sting    [A7]
+
+{comment: Verse 3}
+[D]No    [D/F#]more we [D]doubt    [D/F#]Thee    [A]glorious   [A/C#]Prince   [D]of  [A]life
+[D]Life is [D/F#]nought   [A7/E]with - [D/F#]out Thee [A7/E]aid   [D/F#]us   [A]in  our [D]strife
+[D]Make us more than [A7]con  -  [Bm]qu'rors    [A#°7/C#]through   [Bm/D]Thy   [Em]death - [Bm]less  [F#]love
+[Bm]Lead us in [Bm/A]Thy   [E7/G#]tri  -  [E7]umph    [F#m]to  [D]Thy  [E7]home a - [A]bove    [A7]
+
+
+CCLI Song # 21837
+© Words: Public Domain | Music: Public Domain
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 163300
